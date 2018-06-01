@@ -1,25 +1,14 @@
 import Vapor
+import Sword
+
+let bot = Sword(token: "NDUwMzk0OTMwMDYyNDI2MTEy.DfMVYw.AybPKPH18cu1N9BBTvOtr1jqlfw")
 
 extension Droplet {
     func setupRoutes() throws {
-        get("hello") { req in
-            var json = JSON()
-            try json.set("hello", "world")
-            return json
-        }
-
-        get("plaintext") { req in
-            return "Hello, world!"
-        }
-
-        // response to requests to /info domain
-        // with a description of the request
-        get("info") { req in
-            return req.description
-        }
-
-        get("description") { req in return req.description }
+        let onMessageController = OnMessageController()
         
-        try resource("posts", PostController.self)
+        bot.editStatus(to: "online", playing: "In Development")
+        bot.on(.messageCreate, do: onMessageController.handler)
+        bot.connect()
     }
 }
