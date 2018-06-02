@@ -1,11 +1,19 @@
 import Vapor
 import Sword
-
-let bot = Sword(token: "NDUwMzk0OTMwMDYyNDI2MTEy.DfMVYw.AybPKPH18cu1N9BBTvOtr1jqlfw")
+import Foundation
 
 extension Droplet {
     func setupRoutes() throws {
-        let onMessageController = OnMessageController()
+        
+        let envKey = "DISCORD_PHONEBOOK_BOT_TOKEN"
+        
+        guard let token = ProcessInfo.processInfo.environment[envKey] else {
+            fatalError("No \(envKey) varaible set")
+        }
+        
+        let bot = Sword(token: token)
+        
+		let onMessageController = OnMessageController(discord: bot)
         
         bot.editStatus(to: "online", playing: "In Development")
         bot.on(.messageCreate, do: onMessageController.handler)

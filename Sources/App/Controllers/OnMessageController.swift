@@ -8,48 +8,61 @@
 import Foundation
 import Sword
 
-struct OnMessageController {
+class OnMessageController {
+	let discord: Sword
+    var wizard: VerificationRequestWizard?
+	
+    init(discord: Sword) {
+        self.discord = discord
+    }
+    
     func handler(data: Any) {
         guard let message = data as? Message else {
             print("Not a message")
             return
         }
-        
-        let isBot = message.author?.isBot
-        guard isBot == nil || isBot == false else { return }
-        
-        let content = message.content
-        
-        switch content {
-        case "What time is it?": replyWithTime(in: message)
-        case "Hello", "Hi": replyWithGreeting(to: message.author, in: message)
-        default: replyWithUnknown(in: message)
-        }
-        
+		
+		guard let user = message.author else {
+			print("No author")
+			return
+		}
+		
+		print("Channel: \(message.id)")
+        print("From: \(user.username ?? "null")")
+		print("Message: \(message.content)")
+		
+		let isBot = message.author?.isBot
+		guard isBot == nil || isBot == false else { return }
+		
+		message.author?.getDM(then: { dmOrNil, error in
+			guard let dm = dmOrNil else {
+				print("Could not get DM")
+                error.flatMap { print($0) }
+				return
+			}
+            
+            if message.content == "!verify" {
+                self.wizard = VerificationRequestWizard()
+            }
+            else {
+                if let wizard = self.wizard {
+                    wizard.inputMessage(message.content)
+                }
+            }
+            self.discord.send(self.wizard!.state.userMessage, to: dm.id)
+		})
+	}
+}
+
+fileprivate struct Discord {
+    struct Username {
+        static let phonebookBot = "DC-Phonebook"
+    }
+    
+    struct ChannelID {
+        static let general = "452225589978464267"
+        static let botDebug = "452229749927051278"
+        static let dm_lukestringer90 = "452225869667368960"
     }
 }
 
-fileprivate extension OnMessageController {
-    func replyWithTime(in message: Message) {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        let formatted = formatter.string(from: date)
-        message.reply(with: "The time is: \(formatted)")
-    }
-    
-    func replyWithGreeting(to sender: User?, in message: Message) {
-        var reply = "Hello"
-        if let username = sender?.username {
-            reply.append(" \(username)")
-        }
-        reply.append("!")
-        reply.append(" Nice to meet you 👋")
-        message.reply(with: reply)
-    }
-    
-    func replyWithUnknown(in message: Message) {
-        message.reply(with: "Sorry, I don't currently understand \"\(message.content)\"")
-    }
-}
