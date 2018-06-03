@@ -10,7 +10,8 @@ import Sword
 
 class OnMessageController {
 	let discord: Sword
-    var wizard: VerificationRequestWizard?
+    
+    var userIDWizardMap = [UInt64: VerificationRequestWizard]()
 	
     init(discord: Sword) {
         self.discord = discord
@@ -42,16 +43,26 @@ class OnMessageController {
 			}
             
             if message.content == "!verify" {
-                self.wizard = VerificationRequestWizard()
-            }
-            else {
-                if let wizard = self.wizard {
-                    wizard.inputMessage(message.content)
+                if self.userIDWizardMap[user.id.rawValue] == nil {
+                    let wizard = VerificationRequestWizard(userID: user.id.rawValue)
+                    wizard.delegate = self
+                    self.userIDWizardMap[user.id.rawValue] = wizard
+                    self.discord.send(wizard.state.userMessage, to: dm.id)
                 }
             }
-            self.discord.send(self.wizard!.state.userMessage, to: dm.id)
+            else if let wizard = self.userIDWizardMap[user.id.rawValue] {
+                wizard.inputMessage(message.content)
+                self.discord.send(wizard.state.userMessage, to: dm.id)
+            }
 		})
 	}
+}
+
+extension OnMessageController: VerificationRequestWizardDelegate {
+    func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
+        print("Verificarion request created: \n\(request)")
+        userIDWizardMap[request.userID] = nil
+    }
 }
 
 fileprivate struct Discord {
