@@ -10,11 +10,11 @@ import Sword
 
 class OnMessageController {
 	let discord: Sword
-    
-    var userIDWizardMap = [UInt64: VerificationRequestWizard]()
+    private let verificationController: VerificationController
 	
     init(discord: Sword) {
         self.discord = discord
+        self.verificationController = VerificationController(messageSender: discord)
     }
     
     func handler(data: Any) {
@@ -32,36 +32,44 @@ class OnMessageController {
         print("From: \(user.username ?? "null")")
 		print("Message: \(message.content)")
 		
-		let isBot = message.author?.isBot
-		guard isBot == nil || isBot == false else { return }
-		
-		message.author?.getDM(then: { dmOrNil, error in
-			guard let dm = dmOrNil else {
-				print("Could not get DM")
-                error.flatMap { print($0) }
-				return
-			}
-            
-            if message.content == "!verify" {
-                if self.userIDWizardMap[user.id.rawValue] == nil {
-                    let wizard = VerificationRequestWizard(userID: user.id.rawValue)
-                    wizard.delegate = self
-                    self.userIDWizardMap[user.id.rawValue] = wizard
-                    self.discord.send(wizard.state.userMessage, to: dm.id)
-                }
-            }
-            else if let wizard = self.userIDWizardMap[user.id.rawValue] {
-                wizard.inputMessage(message.content)
-                self.discord.send(wizard.state.userMessage, to: dm.id)
-            }
-		})
+        message.produceVerificationMessage { verificationMessageOrNil in
+            guard let verificationMessage = verificationMessageOrNil else { return }
+            self.verificationController.handler(message: verificationMessage)
+        }
 	}
 }
 
-extension OnMessageController: VerificationRequestWizardDelegate {
-    func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
-        print("Verificarion request created: \n\(request)")
-        userIDWizardMap[request.userID] = nil
+extension Message {
+    
+    struct Verification: VerificationMessage {
+        let fromBot: Bool
+        let authorID: UserID
+        let content: String
+    }
+    
+    func produceVerificationMessage(completion: @escaping (_ message: VerificationMessage?) -> ())  {
+        guard let author = author else {
+            print("No author")
+            completion(nil)
+            return
+        }
+        
+        author.getDM { dmOrNil, requestError in
+            guard let dm = dmOrNil else {
+                print("No DM")
+                completion(nil)
+                return
+            }
+            
+            let verificationMessage = Message.Verification(fromBot: author.isBot == true, authorID: dm.id.rawValue, content: self.content)
+            completion(verificationMessage)
+        }
+    }
+}
+
+extension Sword: SendMessage {
+    func send(_ messageText: String, to userID: UserID) {
+        send(messageText, to: Snowflake(rawValue: userID))
     }
 }
 
