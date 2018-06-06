@@ -68,20 +68,23 @@ extension Message {
 }
 
 extension Sword: SendMessage {
-    func send(_ messageText: String, to userID: UserID) {
-        send(messageText, to: Snowflake(rawValue: userID))
-    }
-}
-
-fileprivate struct Discord {
-    struct Username {
-        static let phonebookBot = "DC-Phonebook"
+    func send(_ messageText: String, to userID: UserID, withReactions reactions: [Reaction]?) {
+        send(messageText, to: Snowflake(rawValue: userID)) { message, error in
+            guard let reactions = reactions, let message = message else { return }
+            
+            for reaction in reactions {
+                self.addReaction(reaction.rawValue, to: message.id, in: Snowflake(rawValue: userID), then: { reactionError in
+                    print(reactionError)
+                })
+            }
+        }
     }
     
-    struct ChannelID {
-        static let general = "452225589978464267"
-        static let botDebug = "452229749927051278"
-        static let dm_lukestringer90 = "452225869667368960"
+    func send(_ messageText: String, to userID: UserID) {
+        send(messageText, to: Snowflake(rawValue: userID)) { message, error in
+            print(message)
+            print(error)
+        }
     }
 }
 

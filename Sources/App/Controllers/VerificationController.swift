@@ -15,8 +15,15 @@ protocol VerificationMessage {
     var content: String { get }
 }
 
+enum Reaction: String {
+    case cross = "❌"
+    case tick = "✅"
+}
+
 protocol SendMessage {
+ 
     func send(_ messageText: String, to userID: UserID)
+    func send(_ messageText: String, to userID: UserID, withReactions: [Reaction]?)
 }
 
 class VerificationController {
@@ -51,6 +58,14 @@ class VerificationController {
 extension VerificationController: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
+        
+        let message = """
+        Scroll: <\(request.scrollName)>
+        Forum: <\(request.forumPage)>
+        """
+        
+        messageSender.send(message, to: Discord.ChannelID.phoneBookRequests, withReactions: [.tick, .cross])
+        
         userIDWizardMap[request.userID] = nil
     }
 }
