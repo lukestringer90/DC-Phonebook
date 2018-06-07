@@ -10,7 +10,8 @@ import XCTest
 
 class VerificationRequestWizardTests: XCTestCase {
     
-    let wizard = VerificationRequestWizard()
+    static let userID = UInt64(1234);
+    let wizard = VerificationRequestWizard(userID: VerificationRequestWizardTests.userID)
     
     // MARK: Start
     
@@ -136,6 +137,7 @@ class VerificationRequestWizardTests: XCTestCase {
         wizard.inputMessage("Y")
         
         if case .complete(let request) = wizard.state {
+            XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
             XCTAssertEqual(request.scrollName, "scroll_name")
             XCTAssertEqual(request.forumPage, "forum_name")
             XCTAssertNotNil(request.creationDate)
@@ -152,6 +154,7 @@ class VerificationRequestWizardTests: XCTestCase {
         wizard.inputMessage("y")
         
         if case .complete(let request) = wizard.state {
+            XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
             XCTAssertEqual(request.scrollName, "scroll_name")
             XCTAssertEqual(request.forumPage, "forum_name")
             XCTAssertNotNil(request.creationDate)
@@ -168,6 +171,7 @@ class VerificationRequestWizardTests: XCTestCase {
         wizard.inputMessage("Yes")
         
         if case .complete(let request) = wizard.state {
+            XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
             XCTAssertEqual(request.scrollName, "scroll_name")
             XCTAssertEqual(request.forumPage, "forum_name")
             XCTAssertNotNil(request.creationDate)

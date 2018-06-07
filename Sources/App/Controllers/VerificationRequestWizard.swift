@@ -8,9 +8,14 @@
 import Foundation
 
 struct VerificationRequest: Equatable {
+    let userID: UInt64
     let scrollName: String
     let forumPage: String
     let creationDate: Date
+}
+
+protocol VerificationRequestWizardDelegate {
+    func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest)
 }
 
 class VerificationRequestWizard {
@@ -18,8 +23,12 @@ class VerificationRequestWizard {
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
     
-    var scrollName: String?
-    var forumName: String?
+    private(set) var scrollName: String?
+    private(set) var forumName: String?
+    
+    private(set) var state: State = .requestScroll
+    var delegate: VerificationRequestWizardDelegate?
+    let userID: UInt64
     
     enum State {
         case requestScroll
@@ -29,7 +38,9 @@ class VerificationRequestWizard {
         case complete(request: VerificationRequest)
     }
     
-    private(set) var state: State = .requestScroll
+    init(userID: UInt64) {
+        self.userID = userID
+    }
     
     func inputMessage(_ message: String) {
         guard message.count > 0 else { return }
@@ -56,8 +67,9 @@ class VerificationRequestWizard {
             
             parseConfirmation(message, confirmed: {
                 forumName = formumNameTemp
-                let request = VerificationRequest(scrollName: scrollName!, forumPage: forumName!, creationDate: Date())
+                let request = VerificationRequest(userID: userID, scrollName: scrollName!, forumPage: forumName!, creationDate: Date())
                 state = .complete(request: request)
+                delegate?.wizard(self, completedWith: request)
             }, retry: {
                 formumNameTemp = nil
                 forumName = nil
