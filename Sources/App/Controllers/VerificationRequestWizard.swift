@@ -20,28 +20,28 @@ protocol VerificationRequestWizardDelegate {
 
 class VerificationRequestWizard {
     
+    enum State {
+        case requestScroll
+        case confirmScroll(url: String)
+        case requestForum
+        case confirmForum(url: String)
+        case complete(request: VerificationRequest)
+    }
+    
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
+    private(set) var forumName: String?
+    
+    private let baseScrollURL = "https://dragcave.net/user/"
+    private(set) var state: State = .requestScroll
     
     var scrollURL: String? {
         guard let name = scrollNameTemp else {  return nil }
         return baseScrollURL + name
     }
-    private(set) var forumName: String?
     
-    private let baseScrollURL = "https://dragcave.net/user/"
-    
-    private(set) var state: State = .requestScroll
     var delegate: VerificationRequestWizardDelegate?
     let userID: UInt64
-    
-    enum State {
-        case requestScroll
-        case confirmScroll(url: String)
-        case requestForum
-        case confirmForum(forumName: String)
-        case complete(request: VerificationRequest)
-    }
     
     init(userID: UInt64) {
         self.userID = userID
@@ -55,19 +55,16 @@ class VerificationRequestWizard {
             scrollNameTemp = message
             state = .confirmScroll(url: scrollURL!)
         case .confirmScroll(_):
-            
             parseConfirmation(message, confirmed: {
                 state = .requestForum
             }, retry: {
                 scrollNameTemp = nil
                 state = .requestScroll
             })
-            
         case .requestForum:
             formumNameTemp = message
-            state = .confirmForum(forumName: formumNameTemp!)
+            state = .confirmForum(url: formumNameTemp!)
         case .confirmForum(_):
-            
             parseConfirmation(message, confirmed: {
                 forumName = formumNameTemp
                 let request = VerificationRequest(userID: userID, scrollURL: scrollURL!, forumPage: forumName!, creationDate: Date())
@@ -78,12 +75,12 @@ class VerificationRequestWizard {
                 forumName = nil
                 state = .requestForum
             })
-            
-        default:
-            break
+        case .complete(_): print("State is complete. Cannot accept input.")
         }
     }
-    
+}
+
+fileprivate extension VerificationRequestWizard {
     func parseConfirmation(_ message: String, confirmed: () -> (), retry: ()-> (), invalid: (_ message: String) -> () = { print("Invalid message: \($0)") }) {
         switch message.lowercased() {
         case "y", "yes": confirmed()
@@ -97,17 +94,26 @@ extension VerificationRequestWizard.State {
     var userMessage: String {
         get {
             switch self {
-                
             case .requestScroll:
-                return "What is your Scroll Name?"
+            let message = """
+                Hi! I'm the DC-Phonebook Bot. I can help you get verified.
+
+                To do this I will need your **Scroll Name** (e.g. `lulu_witch`) and **Forum Profile URL** (e.g. `https://forums.dragcave.net/profile/67335-lulu_witch/`).
+                
+                So let's get started.
+
+                What is your **Scroll Name**?
+                """
+                return message
+                
             case .confirmScroll(let url):
-                return "Is this your Scroll URL: <\(url)> ?\nType \"Yes\" or \"No\""
+                return "Is this your **Scroll URL**: <\(url)> ?\nType `Yes` or `No`."
             case .requestForum:
-                return "What is your Forum Profile URL?"
-            case .confirmForum(let forumName):
-                return "Is this your Forum Profile URL: <\(forumName)>?\nType \"Yes\" or \"No\""
+                return "What is your **Forum Profile URL**?"
+            case .confirmForum(let url):
+                return "Is this your **Forum Profile** URL: <\(url)> ?\nType `Yes` or `No`."
             case .complete(_):
-                return "Thanks! The mods will now review your verificiation request."
+                return "Thanks! Your verirication is now awaiting review by the mods."
             }
         }
     }
