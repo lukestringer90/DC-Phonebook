@@ -29,7 +29,8 @@ class OnMessageController {
 		}
 		
 		print("Channel: \(message.id)")
-        print("From: \(user.username ?? "null")")
+        print("Username: \(user.username ?? "null")")
+        print("User ID: \(user.id)")
 		print("Message: \(message.content)")
 		
         message.produceVerificationMessage { verificationMessageOrNil in
@@ -43,8 +44,9 @@ extension Message {
     
     struct Verification: VerificationMessage {
         let fromBot: Bool
-        let authorID: UserID
+        let authorID: SnowflakeID
         let content: String
+        let authorDMID: SnowflakeID
     }
     
     func produceVerificationMessage(completion: @escaping (_ message: VerificationMessage?) -> ())  {
@@ -61,14 +63,14 @@ extension Message {
                 return
             }
             
-            let verificationMessage = Message.Verification(fromBot: author.isBot == true, authorID: dm.id.rawValue, content: self.content)
+            let verificationMessage = Message.Verification(fromBot: author.isBot == true, authorID: author.id.rawValue, content: self.content, authorDMID: dm.id.rawValue)
             completion(verificationMessage)
         }
     }
 }
 
 extension Sword: SendMessage {
-    func send(_ messageText: String, to userID: UserID, withReactions reactions: [Reaction]?) {
+    func send(_ messageText: String, to userID: SnowflakeID, withReactions reactions: [Reaction]?) {
         send(messageText, to: Snowflake(rawValue: userID)) { message, error in
             guard let reactions = reactions, let message = message else { return }
             
@@ -80,7 +82,7 @@ extension Sword: SendMessage {
         }
     }
     
-    func send(_ messageText: String, to userID: UserID) {
+    func send(_ messageText: String, to userID: SnowflakeID) {
         send(messageText, to: Snowflake(rawValue: userID)) { message, error in
             print(message)
             print(error)

@@ -7,11 +7,12 @@
 
 import Foundation
 
-typealias UserID = UInt64
+typealias SnowflakeID = UInt64
 
 protocol VerificationMessage {
     var fromBot: Bool { get }
-    var authorID: UserID { get }
+    var authorDMID: SnowflakeID { get }
+    var authorID: SnowflakeID { get }
     var content: String { get }
 }
 
@@ -22,8 +23,8 @@ enum Reaction: String {
 
 protocol SendMessage {
  
-    func send(_ messageText: String, to userID: UserID)
-    func send(_ messageText: String, to userID: UserID, withReactions: [Reaction]?)
+    func send(_ messageText: String, to userID: SnowflakeID)
+    func send(_ messageText: String, to userID: SnowflakeID, withReactions: [Reaction]?)
 }
 
 class VerificationController {
@@ -39,18 +40,19 @@ class VerificationController {
         
         guard !message.fromBot else { return }
         let authorID = message.authorID
+        let authorDMID = message.authorDMID
         
         if message.content == "!verify" {
             if self.userIDWizardMap[authorID] == nil {
                 let wizard = VerificationRequestWizard(userID: authorID)
                 wizard.delegate = self
                 self.userIDWizardMap[authorID] = wizard
-                messageSender.send(wizard.state.userMessage, to: authorID)
+                messageSender.send(wizard.state.userMessage, to: authorDMID)
             }
         }
         else if let wizard = self.userIDWizardMap[authorID] {
             wizard.inputMessage(message.content)
-            messageSender.send(wizard.state.userMessage, to: authorID)
+            messageSender.send(wizard.state.userMessage, to: authorDMID)
         }
     }
 }
@@ -60,6 +62,8 @@ extension VerificationController: VerificationRequestWizardDelegate {
         print("Verificarion request created: \n\(request)")
         
         let message = """
+        <@\(request.userID)>
+
         Scroll: <\(request.scrollName)>
         Forum: <\(request.forumPage)>
         """
