@@ -63,7 +63,7 @@ extension VerificationRequestCreationController: VerificationRequestWizardDelega
         let message = """
         <@\(request.userID)>
 
-        Scroll: <\(request.scrollName)>
+        Scroll: <\(request.scrollURL)>
         Forum: <\(request.forumPage)>
         """
         

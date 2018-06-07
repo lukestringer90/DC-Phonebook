@@ -9,7 +9,7 @@ import Foundation
 
 struct VerificationRequest: Equatable {
     let userID: UInt64
-    let scrollName: String
+    let scrollURL: String
     let forumPage: String
     let creationDate: Date
 }
@@ -23,8 +23,13 @@ class VerificationRequestWizard {
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
     
-    private(set) var scrollName: String?
+    var scrollURL: String? {
+        guard let name = scrollNameTemp else {  return nil }
+        return baseScrollURL + name
+    }
     private(set) var forumName: String?
+    
+    private let baseScrollURL = "https://dragcave.net/user/"
     
     private(set) var state: State = .requestScroll
     var delegate: VerificationRequestWizardDelegate?
@@ -32,7 +37,7 @@ class VerificationRequestWizard {
     
     enum State {
         case requestScroll
-        case confirmScroll(scrollName: String)
+        case confirmScroll(url: String)
         case requestForum
         case confirmForum(forumName: String)
         case complete(request: VerificationRequest)
@@ -48,15 +53,13 @@ class VerificationRequestWizard {
         switch state {
         case .requestScroll:
             scrollNameTemp = message
-            state = .confirmScroll(scrollName: scrollNameTemp!)
+            state = .confirmScroll(url: scrollURL!)
         case .confirmScroll(_):
             
             parseConfirmation(message, confirmed: {
-                scrollName = scrollNameTemp
                 state = .requestForum
             }, retry: {
                 scrollNameTemp = nil
-                scrollName = nil
                 state = .requestScroll
             })
             
@@ -67,7 +70,7 @@ class VerificationRequestWizard {
             
             parseConfirmation(message, confirmed: {
                 forumName = formumNameTemp
-                let request = VerificationRequest(userID: userID, scrollName: scrollName!, forumPage: forumName!, creationDate: Date())
+                let request = VerificationRequest(userID: userID, scrollURL: scrollURL!, forumPage: forumName!, creationDate: Date())
                 state = .complete(request: request)
                 delegate?.wizard(self, completedWith: request)
             }, retry: {
@@ -96,13 +99,13 @@ extension VerificationRequestWizard.State {
             switch self {
                 
             case .requestScroll:
-                return "What is your scroll?"
-            case .confirmScroll(let scrollName):
-                return "Are you sure it is `\(scrollName)`? Type \"Yes\" or \"No\""
+                return "What is your Scroll Name?"
+            case .confirmScroll(let url):
+                return "Is this your Scroll URL: <\(url)> ?\nType \"Yes\" or \"No\""
             case .requestForum:
-                return "What is your forum name?"
+                return "What is your Forum Profile URL?"
             case .confirmForum(let forumName):
-                return "Are you sure it is `\(forumName)`? Type \"Yes\" or \"No\""
+                return "Is this your Forum Profile URL: <\(forumName)>?\nType \"Yes\" or \"No\""
             case .complete(_):
                 return "Thanks! The mods will now review your verificiation request."
             }
