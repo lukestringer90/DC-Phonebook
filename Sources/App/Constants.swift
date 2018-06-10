@@ -20,4 +20,9 @@ struct Discord {
         static let phoneBookDirectory = UInt64(454020185104580608)
         static let phoneBookTesting = UInt64(454020308228374559)
     }
+    
+    struct Role {
+        static let mod = UInt64(454020308228374559)
+        static let verified = UInt64(455104920673058817)
+    }
 }
