@@ -10,32 +10,32 @@ import Sword
 
 class OnMessageController {
 	let discord: Sword
-    private let verificationController: VerificationController
+    private let verificationRequestCreationController: VerificationRequestCreationController
 	
-    init(discord: Sword) {
+    required init(discord: Sword) {
         self.discord = discord
-        self.verificationController = VerificationController(messageSender: discord)
+        self.verificationRequestCreationController = VerificationRequestCreationController(messageSender: discord)
     }
     
-    func handler(data: Any) {
+    func handle(data: Any) {
         guard let message = data as? Message else {
             print("Not a message")
             return
         }
-		
-		guard let user = message.author else {
-			print("No author")
-			return
-		}
-		
-		print("Channel: \(message.id)")
+        
+        guard let user = message.author else {
+            print("No author")
+            return
+        }
+        
+        print("Channel: \(message.id)")
         print("Username: \(user.username ?? "null")")
         print("User ID: \(user.id)")
-		print("Message: \(message.content)")
+        print("Message: \(message.content)")
 		
         message.produceVerificationMessage { verificationMessageOrNil in
             guard let verificationMessage = verificationMessageOrNil else { return }
-            self.verificationController.handler(message: verificationMessage)
+            self.verificationRequestCreationController.handler(message: verificationMessage)
         }
 	}
 }
@@ -70,7 +70,7 @@ extension Message {
 }
 
 extension Sword: SendMessage {
-    func send(_ messageText: String, to userID: SnowflakeID, withReactions reactions: [Reaction]?) {
+    func send(_ messageText: String, to userID: SnowflakeID, withEmojiReactions reactions: [EmojiReaction]?) {
         send(messageText, to: Snowflake(rawValue: userID)) { message, error in
             guard let reactions = reactions, let message = message else { return }
             

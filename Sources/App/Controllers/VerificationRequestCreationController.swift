@@ -16,18 +16,17 @@ protocol VerificationMessage {
     var content: String { get }
 }
 
-enum Reaction: String {
+enum EmojiReaction: String {
     case cross = "❌"
     case tick = "✅"
 }
 
 protocol SendMessage {
- 
     func send(_ messageText: String, to userID: SnowflakeID)
-    func send(_ messageText: String, to userID: SnowflakeID, withReactions: [Reaction]?)
+    func send(_ messageText: String, to userID: SnowflakeID, withEmojiReactions: [EmojiReaction]?)
 }
 
-class VerificationController {
+class VerificationRequestCreationController {
     
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageSender: SendMessage
@@ -57,7 +56,7 @@ class VerificationController {
     }
 }
 
-extension VerificationController: VerificationRequestWizardDelegate {
+extension VerificationRequestCreationController: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
         
@@ -68,7 +67,7 @@ extension VerificationController: VerificationRequestWizardDelegate {
         Forum: <\(request.forumPage)>
         """
         
-        messageSender.send(message, to: Discord.ChannelID.phoneBookRequests, withReactions: [.tick, .cross])
+        messageSender.send(message, to: Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross])
         
         userIDWizardMap[request.userID] = nil
     }
