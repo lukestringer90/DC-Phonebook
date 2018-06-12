@@ -10,6 +10,11 @@ import XCTest
 
 class VerificationRequestWizardTests: XCTestCase {
     
+    let scrollName = "lulu_witch"
+    let scrollURL = "https://dragcave.net/user/lulu_witch"
+    let forumURL = "https://forums.dragcave.net/profile/67335-lulu_witch/"
+
+    
     static let userID = UInt64(1234);
     let wizard = VerificationRequestWizard(userID: VerificationRequestWizardTests.userID)
     
@@ -22,8 +27,8 @@ class VerificationRequestWizardTests: XCTestCase {
     // MARK: Input scroll
     
     func testInputScroll() {
-        wizard.inputMessage("scroll_name")
-        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmScroll(scrollName: "scroll_name"))
+        wizard.inputMessage(scrollName)
+        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmScroll(url: scrollURL))
     }
     
     func testInputScrollWithNoMessage() {
@@ -34,59 +39,59 @@ class VerificationRequestWizardTests: XCTestCase {
     // MARK: Retry scroll
     
     func testRetryInputScrollWithUppercaseN() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("N")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestScroll)
     }
     
     func testRetryInputScrollWithLowercaseN() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("n")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestScroll)
     }
     
     func testRetryInputScrollWithNo() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("No")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestScroll)
     }
     
     func testRetryInputScrollWithBadInput() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("blah")
-        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmScroll(scrollName: "scroll_name"))
+        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmScroll(url: scrollURL))
     }
     
     // MARK: Confirm scroll
     
     func testConfirmScrollWithUppercaseY() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Y")
-        XCTAssertEqual(wizard.scrollName, "scroll_name")
+        XCTAssertEqual(wizard.scrollURL, scrollURL)
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     func testConfirmScrollWithLowercasedY() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("y")
-        XCTAssertEqual(wizard.scrollName, "scroll_name")
+        XCTAssertEqual(wizard.scrollURL, scrollURL)
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     func testConfirmScrollWithYes() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        XCTAssertEqual(wizard.scrollName, "scroll_name")
+        XCTAssertEqual(wizard.scrollURL, scrollURL)
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     // MARK: Input forum
     
     func testInputForum() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
-        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmForum(forumName: "forum_name"))
+        wizard.inputMessage(forumURL)
+        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmForum(url: forumURL))
     }
     
     func testInputForumWithNoMessage() {
@@ -97,49 +102,49 @@ class VerificationRequestWizardTests: XCTestCase {
     // MARK: Retry forum
     
     func testRetryForumScrollWithUppercaseN() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("N")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     func testRetryInputForumWithLowercaseN() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("n")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     func testRetryInputForumWithNo() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("No")
         XCTAssertEqual(wizard.state, VerificationRequestWizard.State.requestForum)
     }
     
     func testRetryInputForumWithBadInput() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("blah")
-        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmForum(forumName: "forum_name"))
+        XCTAssertEqual(wizard.state, VerificationRequestWizard.State.confirmForum(url: forumURL))
     }
     
     // MARK: Confirm forum
     
     func testConfirmForumWithUppercaseY() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("Y")
         
         if case .complete(let request) = wizard.state {
             XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
-            XCTAssertEqual(request.scrollName, "scroll_name")
-            XCTAssertEqual(request.forumPage, "forum_name")
+            XCTAssertEqual(request.scrollURL, scrollURL)
+            XCTAssertEqual(request.forumPage, forumURL)
             XCTAssertNotNil(request.creationDate)
         }
         else {
@@ -148,15 +153,15 @@ class VerificationRequestWizardTests: XCTestCase {
     }
     
     func testConfirmForumWithLowercasedY() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("y")
         
         if case .complete(let request) = wizard.state {
             XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
-            XCTAssertEqual(request.scrollName, "scroll_name")
-            XCTAssertEqual(request.forumPage, "forum_name")
+            XCTAssertEqual(request.scrollURL, scrollURL)
+            XCTAssertEqual(request.forumPage, forumURL)
             XCTAssertNotNil(request.creationDate)
         }
         else {
@@ -165,15 +170,15 @@ class VerificationRequestWizardTests: XCTestCase {
     }
     
     func testConfirmForumWithYes() {
-        wizard.inputMessage("scroll_name")
+        wizard.inputMessage(scrollName)
         wizard.inputMessage("Yes")
-        wizard.inputMessage("forum_name")
+        wizard.inputMessage(forumURL)
         wizard.inputMessage("Yes")
         
         if case .complete(let request) = wizard.state {
             XCTAssertEqual(request.userID, VerificationRequestWizardTests.userID)
-            XCTAssertEqual(request.scrollName, "scroll_name")
-            XCTAssertEqual(request.forumPage, "forum_name")
+            XCTAssertEqual(request.scrollURL, scrollURL)
+            XCTAssertEqual(request.forumPage, forumURL)
             XCTAssertNotNil(request.creationDate)
         }
         else {

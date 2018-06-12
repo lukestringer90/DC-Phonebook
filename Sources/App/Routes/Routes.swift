@@ -16,7 +16,7 @@ extension Droplet {
 		let onMessageController = OnMessageController(discord: bot)
         
         bot.editStatus(to: "online", playing: "In Development")
-        bot.on(.messageCreate, do: onMessageController.handler)
+        bot.on(.messageCreate, do: onMessageController.handle)
         bot.connect()
     }
 }
