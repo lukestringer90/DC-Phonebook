@@ -11,11 +11,11 @@ import Sword
 class OnReactionAddController {
     
     let discord: Sword
-    let verificationProcessController: VerificationProcessController
+    let verificationProcessor: VerificationRequestProcessor
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationProcessController = VerificationProcessController(roleService: self.discord, messageService: self.discord)
+        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord)
     }
     
     func handle(data: Any) {
@@ -41,7 +41,7 @@ class OnReactionAddController {
                 }
                 
                 let reaction = VerificationRequest.Reaction(channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name)
-                self.verificationProcessController.handle(reaction: reaction)
+                self.verificationProcessor.handle(reaction: reaction)
                 
             }
         }

@@ -10,11 +10,11 @@ import Sword
 
 class OnMessageController {
 	let discord: Sword
-    private let verificationRequestCreationController: VerificationRequestCreationController
+    private let verificationRequestCreator: VerificationRequestCreator
 	
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationRequestCreationController = VerificationRequestCreationController(messageService: discord)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord)
     }
     
     func handle(data: Any) {
@@ -35,7 +35,7 @@ class OnMessageController {
 		
         message.produceVerificationMessage { verificationMessageOrNil in
             guard let verificationMessage = verificationMessageOrNil else { return }
-            self.verificationRequestCreationController.handler(message: verificationMessage)
+            self.verificationRequestCreator.handler(message: verificationMessage)
         }
 	}
 }

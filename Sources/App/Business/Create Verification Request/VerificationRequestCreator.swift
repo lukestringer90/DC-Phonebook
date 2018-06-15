@@ -14,7 +14,7 @@ protocol VerificationMessage {
     var content: String { get }
 }
 
-class VerificationRequestCreationController {
+class VerificationRequestCreator {
     
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
@@ -52,7 +52,7 @@ class VerificationRequestCreationController {
     }
 }
 
-extension VerificationRequestCreationController: VerificationRequestWizardDelegate {
+extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
         

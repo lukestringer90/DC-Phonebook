@@ -14,7 +14,7 @@ protocol ReactionToVerificationRequest {
     var channelID: RecepientID { get }
 }
 
-class VerificationProcessController {
+class VerificationRequestProcessor {
     
     let roleService: RoleService
     let messageService: MessageService
@@ -31,14 +31,14 @@ class VerificationProcessController {
         
         switch reaction.emojiName {
         case EmojiReaction.tick.rawValue:approve(userID: userID, reaction: reaction)
-        case EmojiReaction.cross.rawValue: deny()
+        case EmojiReaction.cross.rawValue: deny(userID: userID, reaction: reaction)
         default: return
         }
         
     }
 }
 
-fileprivate extension VerificationProcessController {
+fileprivate extension VerificationRequestProcessor {
     
     func approve(userID: UserID, reaction: ReactionToVerificationRequest) {
         roleService.getRolesIDs(forUser: userID) { roleIDsOrNil, error in
@@ -80,7 +80,29 @@ fileprivate extension VerificationProcessController {
         }
     }
     
-    func deny() {
-        print("Deny")
+    func deny(userID: UserID, reaction: ReactionToVerificationRequest) {
+        
+        messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
+            guard deleteError == nil else {
+                print("\(String(describing: deleteError))")
+                return
+            }
+            
+            let message = "Your request for verification has been denied at this time. Please try again ensuring your information is correct. If you have any questions or concerns please contact a mod."
+            
+            self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
+                guard let recepientID = recepientIDOrNil else {
+                    print("Cannot get direct message ID or \(userID)")
+                    return
+                }
+                
+                self.messageService.sendMessage(message, to: recepientID) { sendError in
+                    guard sendError == nil else {
+                        print("\(String(describing: sendError))")
+                        return
+                    }
+                }
+            }   
+        }
     }
 }
