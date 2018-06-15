@@ -23,7 +23,7 @@ class VerificationRequestCreator {
         self.messageService = messageService
     }
     
-    func handler(message: VerificationMessage) {
+    func handle(message: VerificationMessage) {
         
         guard !message.fromBot else { return }
         let authorID = message.authorID

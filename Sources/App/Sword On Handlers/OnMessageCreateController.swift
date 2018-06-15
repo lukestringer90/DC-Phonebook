@@ -35,7 +35,7 @@ class OnMessageController {
 		
         message.produceVerificationMessage { verificationMessageOrNil in
             guard let verificationMessage = verificationMessageOrNil else { return }
-            self.verificationRequestCreator.handler(message: verificationMessage)
+            self.verificationRequestCreator.handle(message: verificationMessage)
         }
 	}
 }

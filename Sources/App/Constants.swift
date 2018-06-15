@@ -9,6 +9,7 @@ import Foundation
 
 struct Constants {
     struct Discord {
+        // TODO: Remove unecessary  constants
         struct ChannelID {
             static let general = UInt64(452225589978464267)
             static let botDebug = UInt64(452229749927051278)
