@@ -12,6 +12,8 @@ enum EmojiReaction: String {
     case tick = "✅"
 }
 
+typealias GetDirectMessageIDCompletion = (RecepientID?) -> ()
+
 protocol MessageService {
     func sendMessage(_ content: String, to recepientID: RecepientID, then completion: @escaping ServiceCompletion)
     
@@ -19,5 +21,5 @@ protocol MessageService {
     
     func deleteMessage(_ messageID: MessageID, from recepientID: RecepientID, then completion: @escaping ServiceCompletion)
     
-    func getDirectMessageID(forUser userID: UserID, then completion: @escaping (RecepientID?) -> ())
+    func getDirectMessageID(forUser userID: UserID, then completion: @escaping GetDirectMessageIDCompletion)
 }
