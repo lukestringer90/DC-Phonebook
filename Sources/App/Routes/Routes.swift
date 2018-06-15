@@ -13,10 +13,13 @@ extension Droplet {
         
         let bot = Sword(token: token)
         
-		let onMessageController = OnMessageController(discord: bot)
+        let onMessageController = OnMessageController(discord: bot)
+        let onReactionAddController = OnReactionAddController(discord: bot)
         
         bot.editStatus(to: "online", playing: "In Development")
         bot.on(.messageCreate, do: onMessageController.handle)
+        bot.on(.reactionAdd, do: onReactionAddController.handle)
         bot.connect()
     }
 }
+

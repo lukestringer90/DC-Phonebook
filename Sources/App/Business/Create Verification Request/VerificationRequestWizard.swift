@@ -19,7 +19,7 @@ class VerificationRequestWizard {
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
     private(set) var forumName: String?
-    private(set) var state: State = .requestScroll
+    private(set) var state: VerificationRequest.State = .requestScroll
     
     // MARK: - Public vars
     
@@ -67,7 +67,7 @@ class VerificationRequestWizard {
                 forumName = nil
                 state = .requestForum
             })
-        case .complete(_): print("State is complete. Cannot accept input.")
+        case .complete, .approved, .denied: print("Cannot accept input for this state: \(state).")
         }
     }
 }

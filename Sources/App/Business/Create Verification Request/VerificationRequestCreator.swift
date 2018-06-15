@@ -7,32 +7,20 @@
 
 import Foundation
 
-typealias SnowflakeID = UInt64
-
 protocol VerificationMessage {
     var fromBot: Bool { get }
-    var authorDMID: SnowflakeID { get }
-    var authorID: SnowflakeID { get }
+    var authorDMID: RecepientID { get }
+    var authorID: UserID { get }
     var content: String { get }
 }
 
-enum EmojiReaction: String {
-    case cross = "❌"
-    case tick = "✅"
-}
-
-protocol SendMessage {
-    func send(_ messageText: String, to userID: SnowflakeID)
-    func send(_ messageText: String, to userID: SnowflakeID, withEmojiReactions: [EmojiReaction]?)
-}
-
-class VerificationRequestCreationController {
+class VerificationRequestCreator {
     
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
-    let messageSender: SendMessage
+    let messageService: MessageService
     
-    init(messageSender: SendMessage) {
-        self.messageSender = messageSender
+    init(messageService: MessageService) {
+        self.messageService = messageService
     }
     
     func handler(message: VerificationMessage) {
@@ -41,33 +29,37 @@ class VerificationRequestCreationController {
         let authorID = message.authorID
         let authorDMID = message.authorDMID
         
+        print(authorID)
+        print(authorDMID)
+        
+        // TODO: Check user is not verified
+        // TODO: Delete verified message
         if message.content == "!verify" {
             if self.userIDWizardMap[authorID] == nil {
                 let wizard = VerificationRequestWizard(userID: authorID)
                 wizard.delegate = self
                 self.userIDWizardMap[authorID] = wizard
-                messageSender.send(wizard.state.userMessage, to: authorDMID)
+                messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
+                    print("\(String(describing: error))")
+                }
             }
         }
         else if let wizard = self.userIDWizardMap[authorID] {
             wizard.inputMessage(message.content)
-            messageSender.send(wizard.state.userMessage, to: authorDMID)
+            messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
+                print("\(String(describing: error))")
+            }
         }
     }
 }
 
-extension VerificationRequestCreationController: VerificationRequestWizardDelegate {
+extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
         
-        let message = """
-        <@\(request.userID)>
-
-        Scroll: <\(request.scrollURL)>
-        Forum: <\(request.forumPage)>
-        """
-        
-        messageSender.send(message, to: Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross])
+        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
+            print("\(String(describing: error))")
+        }
         
         userIDWizardMap[request.userID] = nil
     }
