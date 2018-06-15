@@ -59,7 +59,12 @@ fileprivate extension VerificationProcessController {
     }
     
     func approve(userID: UserID, reaction: ReactionToVerificationRequest) {
-        roleService.getRolesIDs(forUser: userID) { roleIDs in            
+        roleService.getRolesIDs(forUser: userID) { roleIDsOrNil, error in
+            guard let roleIDs = roleIDsOrNil else {
+                print("\(String(describing: error))")
+                return
+            }
+            
             let roleIDToAssign = Discord.Role.verified
             guard !roleIDs.contains(roleIDToAssign) else {
                 print("User already verified")
@@ -69,19 +74,19 @@ fileprivate extension VerificationProcessController {
             newRoleIDs.append(roleIDToAssign)
             
             self.roleService.modify(user: userID, toHaveRoles: newRoleIDs) { modifyError in
-                guard modifyError != nil else {
+                guard modifyError == nil else {
                     print("\(String(describing: modifyError))")
                     return
                 }
                 
                 self.messageService.sendMessage(reaction.messageContent, to: Discord.ChannelID.phoneBookDirectory) { sendError in
-                    guard sendError != nil else {
+                    guard sendError == nil else {
                         print("\(String(describing: sendError))")
                         return
                     }
                     
                     self.messageService.deleteMessage(reaction.messageID) { deleteError in
-                        guard deleteError != nil else {
+                        guard deleteError == nil else {
                             print("\(String(describing: deleteError))")
                             return
                         }

@@ -7,12 +7,12 @@
 
 import Foundation
 
-typealias GetRolesCompletion = ([RoleID]?, Error?)
+typealias GetRolesCompletion = ([RoleID]?, Error?) -> ()
 
 protocol RoleService {
     
     // TODO: Change to GetRolesCompletion
-    func getRolesIDs(forUser userID: UserID, then completion: @escaping ([RoleID]) -> ())
+    func getRolesIDs(forUser userID: UserID, then completion: @escaping GetRolesCompletion)
     
     func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: @escaping ServiceCompletion)
 }
