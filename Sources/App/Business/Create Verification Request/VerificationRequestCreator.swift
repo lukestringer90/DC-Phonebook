@@ -32,8 +32,7 @@ class VerificationRequestCreator {
         print(authorID)
         print(authorDMID)
         
-        // TODO: Check user is not verified
-        // TODO: Delete verified message
+        // Check there isn't already a wizard session open
         if message.content == "!verify" {
             if self.userIDWizardMap[authorID] == nil {
                 let wizard = VerificationRequestWizard(userID: authorID)

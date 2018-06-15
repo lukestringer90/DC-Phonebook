@@ -9,9 +9,9 @@ import Foundation
 import Sword
 
 class OnMessageController {
-	let discord: Sword
+    let discord: Sword
     private let verificationRequestCreator: VerificationRequestCreator
-	
+    
     required init(discord: Sword) {
         self.discord = discord
         self.verificationRequestCreator = VerificationRequestCreator(messageService: discord)
@@ -32,12 +32,45 @@ class OnMessageController {
         print("Username: \(user.username ?? "null")")
         print("User ID: \(user.id)")
         print("Message: \(message.content)")
-		
-        message.produceVerificationMessage { verificationMessageOrNil in
-            guard let verificationMessage = verificationMessageOrNil else { return }
-            self.verificationRequestCreator.handle(message: verificationMessage)
+        
+        discord.getDM(for: user.id) { dmOrNil, error in
+            defer {
+                if message.content == "!verify" {
+                    self.discord.deleteMessage(message.id.rawValue, from: message.channel.id.rawValue) { error in
+                        print("\(String(describing: error))")
+                    }
+                }
+            }
+            
+            guard let dm = dmOrNil else {
+                print("\(String(describing: error))")
+                return
+            }
+            
+            let messageIsDMToBot = message.channel.id == dm.id
+            guard message.content == "!verify" || messageIsDMToBot else {
+                print("Not a verify message")
+                return
+            }
+            
+            self.discord.getRolesIDs(forUser: user.id.rawValue) { roleIDsOrNil, error in
+                guard let roleIDs = roleIDsOrNil else {
+                    print("Cannot get roles for user. Error: \(String(describing: error))")
+                    return
+                }
+                
+                guard !roleIDs.contains(Constants.Discord.Role.verified) else {
+                    self.discord.send("You are already verified.", to: dm.id)
+                    return
+                }
+                
+                message.produceVerificationMessage { verificationMessageOrNil in
+                    guard let verificationMessage = verificationMessageOrNil else { return }
+                    self.verificationRequestCreator.handle(message: verificationMessage)
+                }
+            }
         }
-	}
+    }
 }
 
 extension Message {
