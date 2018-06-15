@@ -63,7 +63,7 @@ extension VerificationRequestCreationController: VerificationRequestWizardDelega
         Forum: <\(request.forumPage)>
         """
         
-        messageService.sendMessage(message, to: Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
+        messageService.sendMessage(message, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
             print("\(String(describing: error))")
         }
         

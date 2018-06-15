@@ -23,7 +23,7 @@ class OnReactionAddController {
         
         guard
             let (channel, userID, messageID, emoji) = data as? Reaction,
-            channel.id.rawValue == Discord.ChannelID.phoneBookRequests
+            channel.id.rawValue == Constants.Discord.ChannelID.phoneBookRequests
             else { return }
         
         discord.getUser(userID) { userOrNil, error in

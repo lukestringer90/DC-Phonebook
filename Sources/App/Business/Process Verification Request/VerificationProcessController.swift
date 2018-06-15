@@ -66,7 +66,7 @@ fileprivate extension VerificationProcessController {
                 return
             }
             
-            let roleIDToAssign = Discord.Role.verified
+            let roleIDToAssign = Constants.Discord.Role.verified
             guard !roleIDs.contains(roleIDToAssign) else {
                 print("User already verified")
                 return
@@ -81,7 +81,7 @@ fileprivate extension VerificationProcessController {
                     return
                 }
                 
-                self.messageService.sendMessage(reaction.messageContent, to: Discord.ChannelID.phoneBookDirectory) { sendError in
+                self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
                         print("\(String(describing: sendError))")
                         return
