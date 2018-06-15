@@ -73,6 +73,23 @@ fileprivate extension VerificationRequestProcessor {
                             print("\(String(describing: deleteError))")
                             return
                         }
+                        
+                        self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
+                            guard let recepientID = recepientIDOrNil else {
+                                print("Cannot get direct message ID or \(userID)")
+                                return
+                            }
+                            
+                            let approvedState = VerificationRequest.State.approved
+                            
+                            self.messageService.sendMessage(approvedState.userMessage, to: recepientID) { sendError in
+                                guard sendError == nil else {
+                                    print("\(String(describing: sendError))")
+                                    return
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
@@ -88,7 +105,6 @@ fileprivate extension VerificationRequestProcessor {
                 return
             }
             
-            let message = "Your request for verification has been denied at this time. Please try again ensuring your information is correct. If you have any questions or concerns please contact a mod."
             
             self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
                 guard let recepientID = recepientIDOrNil else {
@@ -96,7 +112,9 @@ fileprivate extension VerificationRequestProcessor {
                     return
                 }
                 
-                self.messageService.sendMessage(message, to: recepientID) { sendError in
+                let deniedState = VerificationRequest.State.denied
+                
+                self.messageService.sendMessage(deniedState.userMessage, to: recepientID) { sendError in
                     guard sendError == nil else {
                         print("\(String(describing: sendError))")
                         return
