@@ -26,7 +26,7 @@ class VerificationProcessController {
     
     func handle(reaction: ReactionToVerificationRequest) {
         
-        let userIDNUmber = extractUserID(from: reaction.messageContent)
+        let userIDNUmber = VerificationRequest.extractUserID(from: reaction.messageContent)
         let userID = UserID(userIDNUmber)
         
         switch reaction.emojiName {
@@ -39,25 +39,6 @@ class VerificationProcessController {
 }
 
 fileprivate extension VerificationProcessController {
-    func extractUserID(from string: String) -> UserID {
-        guard
-            let at = string.index(of: "@"),
-            let closingBracket = string.index(of: ">")
-            else {
-                fatalError("Cannot get user ID from message content")
-        }
-        
-        let start = string.index(after: at)
-        let end = string.index(before: closingBracket)
-        
-        let userIDString = string[start...end]
-        
-        guard let userIDDouble = Double(userIDString) else {
-            fatalError("Cannot parse message string into double for user ID ")
-        }
-        
-        return UserID(userIDDouble)
-    }
     
     func approve(userID: UserID, reaction: ReactionToVerificationRequest) {
         roleService.getRolesIDs(forUser: userID) { roleIDsOrNil, error in

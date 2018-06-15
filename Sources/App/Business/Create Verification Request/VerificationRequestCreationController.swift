@@ -56,14 +56,7 @@ extension VerificationRequestCreationController: VerificationRequestWizardDelega
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
         
-        let message = """
-        <@\(request.userID)>
-
-        Scroll: <\(request.scrollURL)>
-        Forum: <\(request.forumPage)>
-        """
-        
-        messageService.sendMessage(message, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
+        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
             print("\(String(describing: error))")
         }
         
