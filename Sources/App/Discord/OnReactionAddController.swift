@@ -15,7 +15,7 @@ class OnReactionAddController {
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationProcessController = VerificationProcessController(roleService: self.discord)
+        self.verificationProcessController = VerificationProcessController(roleService: self.discord, messageService: self.discord)
     }
     
     func handle(data: Any) {
@@ -40,7 +40,7 @@ class OnReactionAddController {
                     return
                 }
                 
-                let reaction = VerificationRequest.Reaction(messageContent: message.content, emojiName: emoji.name)
+                let reaction = VerificationRequest.Reaction(messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name)
                 self.verificationProcessController.handle(reaction: reaction)
                 
             }
@@ -48,37 +48,9 @@ class OnReactionAddController {
     }
 }
 
-extension Sword: RoleService {
-    func getRolesIDs(forUser userID: SnowflakeID, completion: @escaping ([RoleID]) -> ()) {
-        getMember(Snowflake(userID), from: guildID) { memberOrNil, error in
-            guard let member = memberOrNil else {
-                fatalError("Cannot get member")
-            }
-            
-            let roleIDs = member.roles.map { $0.id.rawValue }
-            completion(roleIDs)
-        }
-    }
-    
-    func modify(user userID: SnowflakeID, toHaveRoles roleIDs: [RoleID]) {
-        let options = ["roles": roleIDs]
-        modifyMember(Snowflake(userID), in: guildID, with: options) { error in
-            print(error)
-        }
-    }
-    
-    private var guildID: Snowflake {
-        get {
-            guard let guildID = guilds.first?.value.id else {
-                fatalError("Cannot get guild")
-            }
-            return guildID
-        }
-    }
-}
-
 extension VerificationRequest {
     struct Reaction: ReactionToVerificationRequest {
+        let messageID: MessageID
         let messageContent: String
         let emojiName: String
     }

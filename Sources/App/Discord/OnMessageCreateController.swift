@@ -14,7 +14,7 @@ class OnMessageController {
 	
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationRequestCreationController = VerificationRequestCreationController(messageSender: discord)
+        self.verificationRequestCreationController = VerificationRequestCreationController(messageService: discord)
     }
     
     func handle(data: Any) {
@@ -44,9 +44,9 @@ extension Message {
     
     struct Verification: VerificationMessage {
         let fromBot: Bool
-        let authorID: SnowflakeID
+        let authorID: UserID
         let content: String
-        let authorDMID: SnowflakeID
+        let authorDMID: RecepientID
     }
     
     func produceVerificationMessage(completion: @escaping (_ message: VerificationMessage?) -> ())  {

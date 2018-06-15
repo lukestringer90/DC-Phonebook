@@ -10,30 +10,26 @@ import Foundation
 protocol ReactionToVerificationRequest {
     var messageContent: String { get }
     var emojiName: String { get }
-}
-
-typealias RoleID = UInt64
-
-protocol RoleService {
-    func getRolesIDs(forUser userID: SnowflakeID, completion: @escaping ([RoleID]) -> ()) 
-    func modify(user: SnowflakeID, toHaveRoles roles: [RoleID])
+    var messageID: MessageID { get }
 }
 
 class VerificationProcessController {
     
     let roleService: RoleService
+    let messageService: MessageService
     
-    init(roleService: RoleService) {
+    init(roleService: RoleService, messageService: MessageService) {
         self.roleService = roleService
+        self.messageService = messageService
     }
     
     func handle(reaction: ReactionToVerificationRequest) {
         
         let userIDNUmber = extractUserID(from: reaction.messageContent)
-        let userID = SnowflakeID(userIDNUmber)
+        let userID = UserID(userIDNUmber)
         
         switch reaction.emojiName {
-        case EmojiReaction.tick.rawValue:approve(userID: userID)
+        case EmojiReaction.tick.rawValue:approve(userID: userID, reaction: reaction)
         case EmojiReaction.cross.rawValue: deny()
         default: return
         }
@@ -42,7 +38,7 @@ class VerificationProcessController {
 }
 
 fileprivate extension VerificationProcessController {
-    func extractUserID(from string: String) -> SnowflakeID {
+    func extractUserID(from string: String) -> UserID {
         guard
             let at = string.index(of: "@"),
             let closingBracket = string.index(of: ">")
@@ -59,10 +55,10 @@ fileprivate extension VerificationProcessController {
             fatalError("Cannot parse message string into double for user ID ")
         }
         
-        return SnowflakeID(userIDDouble)
+        return UserID(userIDDouble)
     }
     
-    func approve(userID: SnowflakeID) {
+    func approve(userID: UserID, reaction: ReactionToVerificationRequest) {
         roleService.getRolesIDs(forUser: userID) { roleIDs in            
             let roleIDToAssign = Discord.Role.verified
             guard !roleIDs.contains(roleIDToAssign) else {
@@ -71,7 +67,28 @@ fileprivate extension VerificationProcessController {
             }
             var newRoleIDs = roleIDs
             newRoleIDs.append(roleIDToAssign)
-            self.roleService.modify(user: userID, toHaveRoles: newRoleIDs)
+            
+            self.roleService.modify(user: userID, toHaveRoles: newRoleIDs) { modifyError in
+                guard modifyError != nil else {
+                    print("\(String(describing: modifyError))")
+                    return
+                }
+                
+                self.messageService.sendMessage(reaction.messageContent, to: Discord.ChannelID.phoneBookDirectory) { sendError in
+                    guard sendError != nil else {
+                        print("\(String(describing: sendError))")
+                        return
+                    }
+                    
+                    self.messageService.deleteMessage(reaction.messageID) { deleteError in
+                        guard deleteError != nil else {
+                            print("\(String(describing: deleteError))")
+                            return
+                        }
+                    }
+                }
+            }
+            
         }
     }
     

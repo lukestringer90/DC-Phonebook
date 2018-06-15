@@ -7,6 +7,7 @@
 
 import Foundation
 
+// TODO: Wrap in Constants namespace
 struct Discord {
     struct Username {
         static let phonebookBot = "DC-Phonebook"
