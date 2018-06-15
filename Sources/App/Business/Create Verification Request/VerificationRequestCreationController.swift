@@ -32,6 +32,7 @@ class VerificationRequestCreationController {
         print(authorID)
         print(authorDMID)
         
+        // TODO: Check user is not verified
         if message.content == "!verify" {
             if self.userIDWizardMap[authorID] == nil {
                 let wizard = VerificationRequestWizard(userID: authorID)

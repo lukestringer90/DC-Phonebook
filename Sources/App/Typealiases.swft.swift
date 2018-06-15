@@ -13,3 +13,4 @@ typealias RecepientID = UInt64
 typealias UserID = UInt64
 typealias RoleID = UInt64
 typealias MessageID = UInt64
+

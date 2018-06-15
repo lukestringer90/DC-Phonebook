@@ -11,6 +11,7 @@ protocol ReactionToVerificationRequest {
     var messageContent: String { get }
     var emojiName: String { get }
     var messageID: MessageID { get }
+    var channelID: RecepientID { get }
 }
 
 class VerificationProcessController {
@@ -70,6 +71,7 @@ fileprivate extension VerificationProcessController {
                 print("User already verified")
                 return
             }
+            
             var newRoleIDs = roleIDs
             newRoleIDs.append(roleIDToAssign)
             
@@ -85,7 +87,7 @@ fileprivate extension VerificationProcessController {
                         return
                     }
                     
-                    self.messageService.deleteMessage(reaction.messageID) { deleteError in
+                    self.messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
                         guard deleteError == nil else {
                             print("\(String(describing: deleteError))")
                             return

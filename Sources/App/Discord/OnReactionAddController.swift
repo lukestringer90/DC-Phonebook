@@ -40,7 +40,7 @@ class OnReactionAddController {
                     return
                 }
                 
-                let reaction = VerificationRequest.Reaction(messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name)
+                let reaction = VerificationRequest.Reaction(channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name)
                 self.verificationProcessController.handle(reaction: reaction)
                 
             }
@@ -50,6 +50,7 @@ class OnReactionAddController {
 
 extension VerificationRequest {
     struct Reaction: ReactionToVerificationRequest {
+        var channelID: RecepientID
         let messageID: MessageID
         let messageContent: String
         let emojiName: String

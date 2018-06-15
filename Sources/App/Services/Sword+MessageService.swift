@@ -33,8 +33,10 @@ extension Sword: MessageService {
         sendMessage(content, to: recepientID, withEmojiReactions: [], then: completion)
     }
     
-    func deleteMessage(_ messageID: MessageID, then completion: @escaping ServiceCompletion) {
-        // TODO: Implement me
+    func deleteMessage(_ messageID: MessageID, from recepientID: RecepientID, then completion: @escaping ServiceCompletion) {
+        deleteMessage(Snowflake(messageID), from: Snowflake(recepientID)) { error in
+            completion(error)
+        }
     }
 }
 
