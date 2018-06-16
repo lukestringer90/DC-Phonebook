@@ -13,5 +13,11 @@ protocol RoleService {
     
     func getRolesIDs(forUser userID: UserID, then completion: @escaping GetRolesCompletion)
     
-    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: @escaping ServiceCompletion)
+    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: ServiceCompletion?)
+}
+
+extension RoleService {
+    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: ServiceCompletion? = nil) {
+        modify(user: userID, toHaveRoles: roleIDs, then: completion)
+    }
 }

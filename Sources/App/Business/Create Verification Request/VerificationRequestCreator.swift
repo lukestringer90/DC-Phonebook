@@ -35,7 +35,7 @@ class VerificationRequestCreator {
         let authorDMID = message.authorDMID
         
         guard !self.verificationRequestStore.all().contains(where: { return $0.userID == authorID} ) else {
-            messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID) { _ in }
+            messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID)
             return
         }
         
@@ -46,7 +46,7 @@ class VerificationRequestCreator {
             }
             
             guard !roleIDs.contains(Constants.Discord.Role.verified) else {
-                self.messageService.sendMessage("You are already verified.", to: authorDMID) { _ in }
+                self.messageService.sendMessage("You are already verified.", to: authorDMID)
                 return
             }
             
