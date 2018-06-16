@@ -29,10 +29,6 @@ class VerificationRequestCreator {
         let authorID = message.authorID
         let authorDMID = message.authorDMID
         
-        print(authorID)
-        print(authorDMID)
-        
-        // Check there isn't already a wizard session open
         if message.content == "!verify" {
             if self.userIDWizardMap[authorID] == nil {
                 let wizard = VerificationRequestWizard(userID: authorID)
