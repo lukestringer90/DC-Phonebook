@@ -18,9 +18,11 @@ class VerificationRequestCreator {
     
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
+    let verificationRequestStore: VerificationRequest.Store
     
-    init(messageService: MessageService) {
+    init(messageService: MessageService, verificationRequestStore store: VerificationRequest.Store) {
         self.messageService = messageService
+        self.verificationRequestStore = store
     }
     
     func handle(message: VerificationMessage) {
@@ -56,6 +58,7 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             print("\(String(describing: error))")
         }
         
+        verificationRequestStore.add(request)
         userIDWizardMap[request.userID] = nil
     }
 }

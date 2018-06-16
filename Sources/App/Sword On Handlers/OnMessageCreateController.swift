@@ -11,10 +11,11 @@ import Sword
 class OnMessageController {
     let discord: Sword
     private let verificationRequestCreator: VerificationRequestCreator
+    private let verificationRequestStore = VerificationRequest.Store.shared
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, verificationRequestStore: verificationRequestStore)
     }
     
     func handle(data: Any) {
@@ -49,7 +50,13 @@ class OnMessageController {
             
             let messageIsDMToBot = message.channel.id == dm.id
             guard message.content == "!verify" || messageIsDMToBot else {
-                print("Not a verify message")
+                return
+            }
+            
+            // TODO: Move everything below into verification creation controller
+            
+            guard !self.verificationRequestStore.all().contains(where: { return $0.userID == user.id.rawValue} ) else {
+                self.discord.send("You alredy have a verification request waiting to be processed by the mods.", to: dm.id)
                 return
             }
             

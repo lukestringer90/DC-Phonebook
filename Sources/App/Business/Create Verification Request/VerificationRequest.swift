@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct VerificationRequest: Equatable {
+struct VerificationRequest: Equatable, Codable {
     let userID: UInt64
     let scrollURL: String
     let forumPage: String
