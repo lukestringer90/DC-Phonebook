@@ -15,7 +15,7 @@ class OnReactionAddController {
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord)
+        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord, verificationRequestStore: VerificationRequest.Store.shared)
     }
     
     func handle(data: Any) {

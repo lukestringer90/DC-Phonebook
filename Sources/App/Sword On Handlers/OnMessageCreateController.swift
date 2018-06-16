@@ -34,7 +34,7 @@ class OnMessageController {
         print("User ID: \(user.id)")
         print("Message: \(message.content)")
         
-        discord.getDM(for: user.id) { dmOrNil, error in
+        discord.getDM(for: user.id) { dmOrNil, dmError in
             defer {
                 if message.content == "!verify" {
                     self.discord.deleteMessage(message.id.rawValue, from: message.channel.id.rawValue) { error in
@@ -44,7 +44,7 @@ class OnMessageController {
             }
             
             guard let dm = dmOrNil else {
-                print("\(String(describing: error))")
+                // DM is nil if message is from a bot
                 return
             }
             

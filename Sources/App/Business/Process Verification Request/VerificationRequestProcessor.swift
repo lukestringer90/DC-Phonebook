@@ -18,10 +18,12 @@ class VerificationRequestProcessor {
     
     let roleService: RoleService
     let messageService: MessageService
+    let verificationRequestStore: VerificationRequest.Store
     
-    init(roleService: RoleService, messageService: MessageService) {
+    init(roleService: RoleService, messageService: MessageService, verificationRequestStore store: VerificationRequest.Store) {
         self.roleService = roleService
         self.messageService = messageService
+        self.verificationRequestStore = store
     }
     
     func handle(reaction: ReactionToVerificationRequest) {
@@ -30,26 +32,39 @@ class VerificationRequestProcessor {
         let userID = UserID(userIDNUmber)
         
         switch reaction.emojiName {
-        case EmojiReaction.tick.rawValue:approve(userID: userID, reaction: reaction)
-        case EmojiReaction.cross.rawValue: deny(userID: userID, reaction: reaction)
+        case EmojiReaction.tick.rawValue: approve(userID: userID, reaction: reaction, then: processorCompleted)
+        case EmojiReaction.cross.rawValue: deny(userID: userID, reaction: reaction, then: processorCompleted)
         default: return
         }
-        
     }
 }
 
 fileprivate extension VerificationRequestProcessor {
     
-    func approve(userID: UserID, reaction: ReactionToVerificationRequest) {
+    typealias ProcessorCompletion = (UserID, Bool) -> ()
+    
+    func processorCompleted(for userID: UserID, success: Bool) {
+        guard success else { return }
+        
+        guard let request = verificationRequestStore.all().first(where: { return $0.userID == userID} ) else {
+            print("No request in store")
+            return
+        }
+        self.verificationRequestStore.remove(request)
+    }
+    
+    func approve(userID: UserID, reaction: ReactionToVerificationRequest, then completion: @escaping ProcessorCompletion) {
         roleService.getRolesIDs(forUser: userID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
                 print("\(String(describing: error))")
+                completion(userID, false)
                 return
             }
             
             let roleIDToAssign = Constants.Discord.Role.verified
             guard !roleIDs.contains(roleIDToAssign) else {
                 print("User already verified")
+                completion(userID, false)
                 return
             }
             
@@ -59,24 +74,28 @@ fileprivate extension VerificationRequestProcessor {
             self.roleService.modify(user: userID, toHaveRoles: newRoleIDs) { modifyError in
                 guard modifyError == nil else {
                     print("\(String(describing: modifyError))")
+                    completion(userID, false)
                     return
                 }
                 
                 self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
                         print("\(String(describing: sendError))")
+                        completion(userID, false)
                         return
                     }
                     
                     self.messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
                         guard deleteError == nil else {
                             print("\(String(describing: deleteError))")
+                            completion(userID, false)
                             return
                         }
                         
                         self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
                             guard let recepientID = recepientIDOrNil else {
                                 print("Cannot get direct message ID or \(userID)")
+                                completion(userID, false)
                                 return
                             }
                             
@@ -85,8 +104,11 @@ fileprivate extension VerificationRequestProcessor {
                             self.messageService.sendMessage(approvedState.userMessage, to: recepientID) { sendError in
                                 guard sendError == nil else {
                                     print("\(String(describing: sendError))")
+                                    completion(userID, false)
                                     return
                                 }
+                                
+                                completion(userID, true)
                             }
                         }
                         
@@ -97,11 +119,12 @@ fileprivate extension VerificationRequestProcessor {
         }
     }
     
-    func deny(userID: UserID, reaction: ReactionToVerificationRequest) {
+    func deny(userID: UserID, reaction: ReactionToVerificationRequest, then completion: @escaping ProcessorCompletion) {
         
         messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
             guard deleteError == nil else {
                 print("\(String(describing: deleteError))")
+                completion(userID, false)
                 return
             }
             
@@ -109,6 +132,7 @@ fileprivate extension VerificationRequestProcessor {
             self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
                 guard let recepientID = recepientIDOrNil else {
                     print("Cannot get direct message ID or \(userID)")
+                    completion(userID, false)
                     return
                 }
                 
@@ -117,8 +141,10 @@ fileprivate extension VerificationRequestProcessor {
                 self.messageService.sendMessage(deniedState.userMessage, to: recepientID) { sendError in
                     guard sendError == nil else {
                         print("\(String(describing: sendError))")
+                        completion(userID, false)
                         return
                     }
+                    completion(userID, true)
                 }
             }   
         }
