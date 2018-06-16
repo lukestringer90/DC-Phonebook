@@ -36,7 +36,7 @@ class OnMessageController {
         
         discord.getDM(for: user.id) { dmOrNil, dmError in
             defer {
-                if message.content == "!verify" {
+                if message.content == Constants.Discord.VerifyStartMessage {
                     self.discord.deleteMessage(message.id.rawValue, from: message.channel.id.rawValue) { error in
                         print("\(String(describing: error))")
                     }
@@ -49,14 +49,10 @@ class OnMessageController {
             }
             
             let messageIsDMToBot = message.channel.id == dm.id
-            guard message.content == "!verify" || messageIsDMToBot else {
-                return
-            }
+            guard message.content == Constants.Discord.VerifyStartMessage || messageIsDMToBot else { return }
             
             message.produceVerificationMessage { verificationMessageOrNil in
                 guard let verificationMessage = verificationMessageOrNil else { return }
-                
-                
                 self.verificationRequestCreator.handle(message: verificationMessage)
             }
         }
@@ -70,8 +66,6 @@ extension Message {
         let authorID: UserID
         let content: String
         let authorDMID: RecepientID
-        
-        static let startMessage = "!verify"
     }
     
     func produceVerificationMessage(completion: @escaping (_ message: VerificationMessage?) -> ())  {

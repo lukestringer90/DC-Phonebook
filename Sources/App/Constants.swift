@@ -19,5 +19,7 @@ struct Constants {
         struct Role {
             static let verified = UInt64(455104920673058817)
         }
+        
+        static let VerifyStartMessage = "!verify"
     }
 }

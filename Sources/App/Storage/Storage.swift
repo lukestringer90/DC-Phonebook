@@ -7,6 +7,8 @@
 
 import Foundation
 
+// TODO: Way to get a specific entry out
+
 /// Conform to the Storage protocol to faciltate the storage of a Storable entity.
 protocol Storage {
     

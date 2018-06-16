@@ -16,6 +16,7 @@ protocol VerificationMessage {
 
 class VerificationRequestCreator {
     
+    // TODO: Use the store instead
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
     let roleService: RoleService
@@ -49,7 +50,7 @@ class VerificationRequestCreator {
                 return
             }
             
-            if message.content == "!verify" {
+            if message.content == Constants.Discord.VerifyStartMessage {
                 if self.userIDWizardMap[authorID] == nil {
                     let wizard = VerificationRequestWizard(userID: authorID)
                     wizard.delegate = self
