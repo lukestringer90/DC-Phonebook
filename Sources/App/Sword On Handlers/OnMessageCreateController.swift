@@ -15,7 +15,7 @@ class OnMessageController {
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, verificationRequestStore: verificationRequestStore)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, verificationRequestStore: verificationRequestStore)
     }
     
     func handle(data: Any) {
@@ -53,28 +53,11 @@ class OnMessageController {
                 return
             }
             
-            // TODO: Move everything below into verification creation controller
-            
-            guard !self.verificationRequestStore.all().contains(where: { return $0.userID == user.id.rawValue} ) else {
-                self.discord.send("You alredy have a verification request waiting to be processed by the mods.", to: dm.id)
-                return
-            }
-            
-            self.discord.getRolesIDs(forUser: user.id.rawValue) { roleIDsOrNil, error in
-                guard let roleIDs = roleIDsOrNil else {
-                    print("Cannot get roles for user. Error: \(String(describing: error))")
-                    return
-                }
+            message.produceVerificationMessage { verificationMessageOrNil in
+                guard let verificationMessage = verificationMessageOrNil else { return }
                 
-                guard !roleIDs.contains(Constants.Discord.Role.verified) else {
-                    self.discord.send("You are already verified.", to: dm.id)
-                    return
-                }
                 
-                message.produceVerificationMessage { verificationMessageOrNil in
-                    guard let verificationMessage = verificationMessageOrNil else { return }
-                    self.verificationRequestCreator.handle(message: verificationMessage)
-                }
+                self.verificationRequestCreator.handle(message: verificationMessage)
             }
         }
     }
@@ -87,6 +70,8 @@ extension Message {
         let authorID: UserID
         let content: String
         let authorDMID: RecepientID
+        
+        static let startMessage = "!verify"
     }
     
     func produceVerificationMessage(completion: @escaping (_ message: VerificationMessage?) -> ())  {
