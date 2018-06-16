@@ -9,10 +9,10 @@ import Foundation
 import Sword
 
 extension Sword: RoleService {
-    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: @escaping ServiceCompletion) {
+    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: ServiceCompletion?) {
         let options = ["roles": roleIDs]
         modifyMember(Snowflake(userID), in: guildID, with: options) { error in
-            completion(error)
+            completion?(error)
         }
     }
     

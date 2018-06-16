@@ -9,12 +9,13 @@ import Foundation
 import Sword
 
 class OnMessageController {
-	let discord: Sword
+    let discord: Sword
     private let verificationRequestCreator: VerificationRequestCreator
-	
+    private let verificationRequestStore = VerificationRequest.Store.shared
+    
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, verificationRequestStore: verificationRequestStore)
     }
     
     func handle(data: Any) {
@@ -32,12 +33,30 @@ class OnMessageController {
         print("Username: \(user.username ?? "null")")
         print("User ID: \(user.id)")
         print("Message: \(message.content)")
-		
-        message.produceVerificationMessage { verificationMessageOrNil in
-            guard let verificationMessage = verificationMessageOrNil else { return }
-            self.verificationRequestCreator.handler(message: verificationMessage)
+        
+        discord.getDM(for: user.id) { dmOrNil, dmError in
+            defer {
+                if message.content == Constants.Discord.VerifyStartMessage {
+                    self.discord.deleteMessage(message.id.rawValue, from: message.channel.id.rawValue) { error in
+                        print("\(String(describing: error))")
+                    }
+                }
+            }
+            
+            guard let dm = dmOrNil else {
+                // DM is nil if message is from a bot
+                return
+            }
+            
+            let messageIsDMToBot = message.channel.id == dm.id
+            guard message.content == Constants.Discord.VerifyStartMessage || messageIsDMToBot else { return }
+            
+            message.produceVerificationMessage { verificationMessageOrNil in
+                guard let verificationMessage = verificationMessageOrNil else { return }
+                self.verificationRequestCreator.handle(message: verificationMessage)
+            }
         }
-	}
+    }
 }
 
 extension Message {
