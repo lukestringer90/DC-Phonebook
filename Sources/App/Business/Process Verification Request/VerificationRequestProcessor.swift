@@ -82,7 +82,6 @@ fileprivate extension VerificationRequestProcessor {
                 }
                 
                 self.loggingService.log(VerificationEvent.requestAccepted(applicant: userID, reviewer: reaction.reactorID, at: Date()))
-                self.loggingService.log(VerificationEvent.roleApplied(userID: userID, at: Date()))
                 
                 self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
                     guard sendError == nil else {

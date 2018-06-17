@@ -16,7 +16,6 @@ protocol VerificationMessage {
 
 class VerificationRequestCreator {
     
-    // TODO: Use the store instead
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
     let roleService: RoleService
@@ -54,12 +53,16 @@ class VerificationRequestCreator {
             
             if message.content == Constants.Discord.VerifyStartMessage {
                 if self.userIDWizardMap[authorID] == nil {
+                    self.loggingService.log(VerificationEvent.started(applicantID: authorID, at: Date()))
                     let wizard = VerificationRequestWizard(userID: authorID)
                     wizard.delegate = self
                     self.userIDWizardMap[authorID] = wizard
                     self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
                         print("\(String(describing: error))")
                     }
+                }
+                else {
+                    self.loggingService.log(VerificationEvent.startedDuplicate(applicantID: authorID, at: Date()))
                 }
             }
             else if let wizard = self.userIDWizardMap[authorID] {
