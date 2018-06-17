@@ -21,6 +21,9 @@ struct Constants {
             static let verified = UInt64(455104920673058817)
         }
         
-        static let VerifyStartMessage = "!verify"
+        struct VerifyStartMessage {
+            static let commandString = "!verify"
+            static let secondsBeforeDeletion = 7.0
+        }
     }
 }
