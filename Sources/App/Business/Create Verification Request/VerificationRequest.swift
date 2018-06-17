@@ -18,7 +18,7 @@ extension VerificationRequest {
     var messageRepresentation: String {
         get {
             return """
-            <@\(userID)>
+            \(userID.asTaggedMessage)
             
             Scroll: <\(scrollURL)>
             Forum: <\(forumPage)>

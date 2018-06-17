@@ -14,3 +14,10 @@ typealias UserID = UInt64
 typealias RoleID = UInt64
 typealias MessageID = UInt64
 
+extension UserID {
+    var asTaggedMessage: String {
+        get {
+            return "<@\(self)>"
+        }
+    }
+}

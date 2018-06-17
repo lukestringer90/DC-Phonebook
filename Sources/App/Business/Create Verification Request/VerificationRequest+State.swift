@@ -41,7 +41,7 @@ extension VerificationRequest.State {
             case .confirmForum(let url):
                 return "Is this your **Forum Profile** URL: <\(url)> ?\nType `Yes` or `No`."
             case .complete(_):
-                return "Thanks! Your verirication is now awaiting review by the mods."
+                return "Thanks! Your verification request is now awaiting review by the mods."
             case .approved:
                 return "Congratulations, your verification request has been approved! You now have the `Verified` role and can access all the channels."
             case .denied:

@@ -23,6 +23,8 @@ extension Sword: MessageService {
             
             for reaction in reactions {
                 self.addReaction(reaction.rawValue, to: message.id, in: Snowflake(recepientID), then: { reactionError in
+                    // TODO: Only casll completion when both reqaction have been posted.
+                    // Not for each reaction
                     completion?(error)
                 })
             }

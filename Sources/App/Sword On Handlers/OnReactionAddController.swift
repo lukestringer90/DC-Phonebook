@@ -15,7 +15,7 @@ class OnReactionAddController {
     
     required init(discord: Sword) {
         self.discord = discord
-        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord, verificationRequestStore: VerificationRequest.Store.shared)
+        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord, loggingService: self.discord, verificationRequestStore: VerificationRequest.Store.shared)
     }
     
     func handle(data: Any) {
@@ -40,7 +40,7 @@ class OnReactionAddController {
                     return
                 }
                 
-                let reaction = VerificationRequest.Reaction(channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name)
+                let reaction = VerificationRequest.Reaction(channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name, reactorID: userID.rawValue)
                 self.verificationProcessor.handle(reaction: reaction)
                 
             }
@@ -54,6 +54,7 @@ extension VerificationRequest {
         let messageID: MessageID
         let messageContent: String
         let emojiName: String
+        var reactorID: UserID
     }
 }
 

@@ -20,11 +20,13 @@ class VerificationRequestCreator {
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
     let roleService: RoleService
+    let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
     
-    init(messageService: MessageService, roleService: RoleService, verificationRequestStore store: VerificationRequest.Store) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
         self.messageService = messageService
         self.verificationRequestStore = store
+        self.loggingService = loggingService
         self.roleService = roleService
     }
     
@@ -74,8 +76,11 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         print("Verificarion request created: \n\(request)")
         
-        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
-            print("\(String(describing: error))")
+        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { errorOrNil in
+            if let error = errorOrNil {
+                print("Error posting verification request message: \(error)")
+            }
+            self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
         
         verificationRequestStore.add(request)
