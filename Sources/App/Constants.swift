@@ -14,6 +14,7 @@ struct Constants {
         struct ChannelID {
             static let phoneBookRequests = UInt64(450397327295905803)
             static let phoneBookDirectory = UInt64(450397213319757854)
+            static let logs = UInt64(450397168046440449)
         }
         
         struct Role {

@@ -12,17 +12,20 @@ protocol ReactionToVerificationRequest {
     var emojiName: String { get }
     var messageID: MessageID { get }
     var channelID: RecepientID { get }
+    var reactorID: UserID { get }
 }
 
 class VerificationRequestProcessor {
     
     let roleService: RoleService
     let messageService: MessageService
+    let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
     
-    init(roleService: RoleService, messageService: MessageService, verificationRequestStore store: VerificationRequest.Store) {
+    init(roleService: RoleService, messageService: MessageService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
         self.roleService = roleService
         self.messageService = messageService
+        self.loggingService = loggingService
         self.verificationRequestStore = store
     }
     
@@ -77,6 +80,8 @@ fileprivate extension VerificationRequestProcessor {
                     completion(userID, false)
                     return
                 }
+                
+                self.loggingService.log(VerificationEvent.requestAccepted(applicant: userID, reviewer: reaction.reactorID, at: Date()))
                 
                 self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
@@ -144,6 +149,7 @@ fileprivate extension VerificationRequestProcessor {
                         completion(userID, false)
                         return
                     }
+                    self.loggingService.log(VerificationEvent.requestDenied(applicant: userID, reviewer: reaction.reactorID, at: Date()))
                     completion(userID, true)
                 }
             }   

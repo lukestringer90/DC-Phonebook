@@ -21,11 +21,7 @@ extension Sword: MessageService {
                 return
             }
             
-            for reaction in reactions {
-                self.addReaction(reaction.rawValue, to: message.id, in: Snowflake(recepientID), then: { reactionError in
-                    completion?(error)
-                })
-            }
+            self.recursivelyAddReaction(reactions, to: message.id.rawValue, in: recepientID, then: completion)
         }
     }
     
@@ -48,6 +44,26 @@ extension Sword: MessageService {
             
             let directMessageID = dm.id.rawValue
             completion(directMessageID)
+        }
+    }
+}
+
+fileprivate extension Sword {
+    func recursivelyAddReaction(_ reactions: [EmojiReaction], to messageId: MessageID, in channelId: RecepientID, then completion: ServiceCompletion?) {
+        guard let nextReaction = reactions.first else {
+            completion?(nil)
+            return
+        }
+        
+        addReaction(nextReaction.rawValue, to: Snowflake(messageId), in: Snowflake(channelId)) { error in
+            guard error == nil else {
+                completion?(nil)
+                return
+            }
+            
+            var remaining = reactions
+            remaining.removeFirst()
+            self.recursivelyAddReaction(remaining, to: messageId, in: channelId, then: completion)
         }
     }
 }

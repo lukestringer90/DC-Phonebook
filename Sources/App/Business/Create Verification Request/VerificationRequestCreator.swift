@@ -16,15 +16,16 @@ protocol VerificationMessage {
 
 class VerificationRequestCreator {
     
-    // TODO: Use the store instead
     fileprivate var userIDWizardMap = [UInt64: VerificationRequestWizard]()
     let messageService: MessageService
     let roleService: RoleService
+    let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
     
-    init(messageService: MessageService, roleService: RoleService, verificationRequestStore store: VerificationRequest.Store) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
         self.messageService = messageService
         self.verificationRequestStore = store
+        self.loggingService = loggingService
         self.roleService = roleService
     }
     
@@ -52,12 +53,16 @@ class VerificationRequestCreator {
             
             if message.content == Constants.Discord.VerifyStartMessage {
                 if self.userIDWizardMap[authorID] == nil {
+                    self.loggingService.log(VerificationEvent.started(applicantID: authorID, at: Date()))
                     let wizard = VerificationRequestWizard(userID: authorID)
                     wizard.delegate = self
                     self.userIDWizardMap[authorID] = wizard
                     self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
                         print("\(String(describing: error))")
                     }
+                }
+                else {
+                    self.loggingService.log(VerificationEvent.startedDuplicate(applicantID: authorID, at: Date()))
                 }
             }
             else if let wizard = self.userIDWizardMap[authorID] {
@@ -72,13 +77,19 @@ class VerificationRequestCreator {
 
 extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
-        print("Verificarion request created: \n\(request)")
         
         messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
-            print("\(String(describing: error))")
+            defer {
+                self.userIDWizardMap[request.userID] = nil
+            }
+            
+            guard error == nil else {
+                print("Failed to post verification request message. Error: \(String(describing: error))")
+                return
+            }
+            
+            self.verificationRequestStore.add(request)
+            self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
-        
-        verificationRequestStore.add(request)
-        userIDWizardMap[request.userID] = nil
     }
 }
