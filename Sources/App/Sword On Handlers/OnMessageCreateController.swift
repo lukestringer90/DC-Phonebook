@@ -17,7 +17,7 @@ class OnMessageController {
     required init(discord: Sword) {
         self.discord = discord
         self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: self.discord, verificationRequestStore: verificationRequestStore)
-        self.verifyStartMessageController = VerifyStartMessageController(verificationRequestStore: self.verificationRequestStore, discord: self.discord)
+        self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord)
     }
     
     func handle(data: Any) {
