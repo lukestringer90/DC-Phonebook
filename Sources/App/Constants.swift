@@ -22,7 +22,7 @@ struct Constants {
         }
         
         struct VerifyStartMessage {
-            static let commandString = "!verify"
+            static let command = "!verify"
             static let secondsBeforeDeletion = 7.0
         }
     }

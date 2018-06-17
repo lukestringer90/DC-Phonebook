@@ -51,7 +51,7 @@ class VerificationRequestCreator {
                 return
             }
             
-            if message.content == Constants.Discord.VerifyStartMessage.commandString {
+            if message.content == Constants.Discord.VerifyStartMessage.command {
                 if self.userIDWizardMap[authorID] == nil {
                     self.loggingService.log(VerificationEvent.started(applicantID: authorID, at: Date()))
                     let wizard = VerificationRequestWizard(userID: authorID)

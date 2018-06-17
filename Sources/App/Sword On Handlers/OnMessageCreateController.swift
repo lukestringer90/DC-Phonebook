@@ -38,7 +38,7 @@ class OnMessageController {
         
         discord.getDM(for: user.id) { dmOrNil, dmError in
             defer {
-                if message.content == Constants.Discord.VerifyStartMessage.commandString {
+                if message.content == Constants.Discord.VerifyStartMessage.command {
                     self.verifyStartMessageController.handle(startMessage: message)
                 }
             }
@@ -49,7 +49,7 @@ class OnMessageController {
             }
             
             let messageIsDMToBot = message.channel.id == dm.id
-            guard message.content == Constants.Discord.VerifyStartMessage.commandString || messageIsDMToBot else { return }
+            guard message.content == Constants.Discord.VerifyStartMessage.command || messageIsDMToBot else { return }
             
             message.produceVerificationMessage { verificationMessageOrNil in
                 guard let verificationMessage = verificationMessageOrNil else { return }

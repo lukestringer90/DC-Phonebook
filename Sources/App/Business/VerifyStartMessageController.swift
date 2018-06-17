@@ -13,7 +13,7 @@ struct VerifyStartMessageController {
     let discord: Sword
     
     func handle(startMessage: Message) {
-        guard startMessage.content == Constants.Discord.VerifyStartMessage.commandString, let userID = startMessage.author?.id else { return }
+        guard startMessage.content == Constants.Discord.VerifyStartMessage.command, let userID = startMessage.author?.id else { return }
         
         if self.verificationRequestStore.all().contains(where: { return $0.userID == userID.rawValue } ) {
             discord.deleteMessage(startMessage.id, from: userID, then: nil)
