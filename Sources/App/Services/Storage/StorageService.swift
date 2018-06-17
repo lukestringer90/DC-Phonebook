@@ -7,9 +7,6 @@
 
 import Foundation
 
-// TODO: Way to get a specific entry out
-// TODO: Rename to service and move into service folder
-
 /// Conform to the Storage protocol to faciltate the storage of a Storable entity.
 protocol StorageService {
     
@@ -53,6 +50,11 @@ protocol StorageService {
     /// - Parameter entities: The entities currently in storage.
     func didUpdate(to entities: [Entity])
     
+    
+    /// Get the first entity matching it's unique ID
+    ///
+    /// - Parameter entityID: The unique ID for the entity to get
+    /// - Returns: The first entity in storage with a matching uniqueID, or nil if not found.
     func getFirst(matching entityID: Entity.UniqueIDType) -> Entity?
 }
 
@@ -60,6 +62,7 @@ protocol StorageService {
 /// Conform to the Storage protocol to facilitate encoding a type for storage, and decoding a type back out of storage.
 protocol Storable {
     
+    /// The type of the unique ID.
     associatedtype UniqueIDType: Hashable
     
     /// Encode a type into data ready for storage.
@@ -72,8 +75,9 @@ protocol Storable {
     ///
     /// - Parameter data: The data from storage.
     /// - Returns: A instance of the type as decoded from the data.
-    static func decode(from data: Data) -> Self
+    static func decode(from data: Data) -> Self    
     
+    /// The unique ID for the entity.
     var uniqueID: UniqueIDType { get }
 }
 

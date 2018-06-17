@@ -12,7 +12,7 @@ struct VerifyStartMessageController {
     let discord: Sword
     
     func handle(startMessage: Message) {
-        guard startMessage.content == Constants.Discord.VerifyStartMessage.command, let userID = startMessage.author?.id else { return }
+        guard startMessage.content == Constants.Discord.VerifyStartMessage.command else { return }
             startMessage.reply(with: "Check for a DM from me.") { replyMessageOrNil, error in
                 guard let replyMessage = replyMessageOrNil else {
                     print("Could not reply to start message. Error: \(String(describing: error))")
