@@ -35,7 +35,7 @@ class VerificationRequestCreator {
         let authorID = message.authorID
         let authorDMID = message.authorDMID
         
-        guard !self.verificationRequestStore.all().contains(where: { return $0.userID == authorID} ) else {
+        guard verificationRequestStore.getFirst(matching: authorID) == nil else {
             messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID)
             return
         }

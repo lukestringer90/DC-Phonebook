@@ -49,7 +49,7 @@ fileprivate extension VerificationRequestProcessor {
     func processorCompleted(for userID: UserID, success: Bool) {
         guard success else { return }
         
-        guard let request = verificationRequestStore.all().first(where: { return $0.userID == userID} ) else {
+        guard let request = verificationRequestStore.getFirst(matching: userID) else {
             print("No request in store")
             return
         }
