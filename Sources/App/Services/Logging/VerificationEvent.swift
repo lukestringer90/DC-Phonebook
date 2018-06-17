@@ -23,9 +23,9 @@ enum VerificationEvent: Event {
         case .requestSubmitted(let request, let date):
             return "\(date.asLogFormat): \(request.userID.asTaggedMessage) **SUBMITTED** request:\n\n\(request.messageRepresentation)"
         case .started(let applicantID,  let date):
-            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) **STARTED** verification process using `\(Constants.Discord.VerifyStartMessage)`"
+            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) **STARTED** verification process using `\(Constants.Discord.VerifyStartMessage.command)`"
         case .startedDuplicate(let applicantID, let date):
-            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) used `\(Constants.Discord.VerifyStartMessage)` without completing verification process"
+            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) used `\(Constants.Discord.VerifyStartMessage.command)` without completing verification process"
         }
     }
 }

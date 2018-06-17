@@ -35,7 +35,7 @@ class VerificationRequestCreator {
         let authorID = message.authorID
         let authorDMID = message.authorDMID
         
-        guard !self.verificationRequestStore.all().contains(where: { return $0.userID == authorID} ) else {
+        guard verificationRequestStore.getFirst(matching: authorID) == nil else {
             messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID)
             return
         }
@@ -51,7 +51,7 @@ class VerificationRequestCreator {
                 return
             }
             
-            if message.content == Constants.Discord.VerifyStartMessage {
+            if message.content == Constants.Discord.VerifyStartMessage.command {
                 if self.userIDWizardMap[authorID] == nil {
                     self.loggingService.log(VerificationEvent.started(applicantID: authorID, at: Date()))
                     let wizard = VerificationRequestWizard(userID: authorID)

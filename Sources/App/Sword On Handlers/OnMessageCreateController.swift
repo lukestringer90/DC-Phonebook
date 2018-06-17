@@ -12,10 +12,12 @@ class OnMessageController {
     let discord: Sword
     private let verificationRequestCreator: VerificationRequestCreator
     private let verificationRequestStore = VerificationRequest.Store.shared
+    private let verifyStartMessageController: VerifyStartMessageController
     
     required init(discord: Sword) {
         self.discord = discord
         self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: self.discord, verificationRequestStore: verificationRequestStore)
+        self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord)
     }
     
     func handle(data: Any) {
@@ -36,10 +38,8 @@ class OnMessageController {
         
         discord.getDM(for: user.id) { dmOrNil, dmError in
             defer {
-                if message.content == Constants.Discord.VerifyStartMessage {
-                    self.discord.deleteMessage(message.id.rawValue, from: message.channel.id.rawValue) { error in
-                        print("\(String(describing: error))")
-                    }
+                if message.content == Constants.Discord.VerifyStartMessage.command {
+                    self.verifyStartMessageController.handle(startMessage: message)
                 }
             }
             
@@ -49,7 +49,7 @@ class OnMessageController {
             }
             
             let messageIsDMToBot = message.channel.id == dm.id
-            guard message.content == Constants.Discord.VerifyStartMessage || messageIsDMToBot else { return }
+            guard message.content == Constants.Discord.VerifyStartMessage.command || messageIsDMToBot else { return }
             
             message.produceVerificationMessage { verificationMessageOrNil in
                 guard let verificationMessage = verificationMessageOrNil else { return }

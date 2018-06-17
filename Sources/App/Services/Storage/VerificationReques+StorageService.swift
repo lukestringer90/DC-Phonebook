@@ -9,14 +9,19 @@ import Foundation
 
 
 extension VerificationRequest {
-    struct Store: Storage {
+    struct Store: StorageService {
         typealias Entity = VerificationRequest
         static var key = "verification-request"
-        
         static let shared = Store()
     }
 }
 extension VerificationRequest: Storable {
+    typealias UniqueIDType = UInt64
+    
+    var uniqueID: UInt64 {
+        return userID
+    }
+    
     func encode() -> Data {
         return try! JSONEncoder().encode(self)
     }
