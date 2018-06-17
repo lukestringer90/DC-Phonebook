@@ -77,16 +77,19 @@ class VerificationRequestCreator {
 
 extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
-        print("Verificarion request created: \n\(request)")
         
-        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { errorOrNil in
-            if let error = errorOrNil {
-                print("Error posting verification request message: \(error)")
+        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
+            defer {
+                self.userIDWizardMap[request.userID] = nil
             }
+            
+            guard error == nil else {
+                print("Failed to post verification request message. Error: \(String(describing: error))")
+                return
+            }
+            
+            self.verificationRequestStore.add(request)
             self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
-        
-        verificationRequestStore.add(request)
-        userIDWizardMap[request.userID] = nil
     }
 }
