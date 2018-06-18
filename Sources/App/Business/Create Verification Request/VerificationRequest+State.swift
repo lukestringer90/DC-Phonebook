@@ -12,6 +12,7 @@ extension VerificationRequest {
         case requestScroll
         case confirmScroll(url: String)
         case requestForum
+        case invalidForum(url: String)
         case confirmForum(url: String)
         case complete(request: VerificationRequest)
         case approved
@@ -46,6 +47,8 @@ extension VerificationRequest.State {
                 return "Congratulations, your verification request has been approved! You now have the `Verified` role and can access all the channels."
             case .denied:
                 return "Your request for verification has been denied at this time. Please try again ensuring your information is correct. If you have any questions or concerns please contact a mod."
+            case .invalidForum:
+                return "That is not a valid forum URL. It must start with `https://forums.dragcave.net/profile/`. Please try again.\n\(VerificationRequest.State.requestForum.userMessage)"
             }
         }
     }
@@ -62,6 +65,7 @@ extension VerificationRequest.State : Equatable {
         case let (.complete(requestLHS), .complete(requestRHS)): return requestLHS == requestRHS
         case (.approved, .approved): return true
         case (.denied, .denied): return true
+        case (.invalidForum, .invalidForum): return true
         default: return false
         }
     }
