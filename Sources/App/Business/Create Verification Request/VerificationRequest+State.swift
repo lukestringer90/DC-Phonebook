@@ -36,11 +36,11 @@ extension VerificationRequest.State {
                 """
                 return message
             case .confirmScroll(let url):
-                return "Is this your **Scroll URL**: <\(url)> ?\nType `Yes` or `No`."
+                return "Confirm this is your **Scroll URL**: <\(url)> ?\nType `Yes` or `No`."
             case .requestForum:
                 return "What is your **Forum Profile URL**?"
             case .confirmForum(let url):
-                return "Is this your **Forum Profile** URL: <\(url)> ?\nType `Yes` or `No`."
+                return "Confirm this is your **Forum Profile URL**: <\(url)> ?\nType `Yes` or `No`."
             case .complete(_):
                 return "Thanks! Your verification request is now awaiting review by the mods."
             case .approved:
