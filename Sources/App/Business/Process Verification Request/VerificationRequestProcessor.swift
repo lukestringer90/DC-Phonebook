@@ -13,6 +13,7 @@ protocol ReactionToVerificationRequest {
     var messageID: MessageID { get }
     var channelID: RecepientID { get }
     var reactorID: UserID { get }
+    var guildID: GuildID { get }
 }
 
 class VerificationRequestProcessor {
@@ -57,7 +58,7 @@ fileprivate extension VerificationRequestProcessor {
     }
     
     func approve(userID: UserID, reaction: ReactionToVerificationRequest, then completion: @escaping ProcessorCompletion) {
-        roleService.getRolesIDs(forUser: userID) { roleIDsOrNil, error in
+        roleService.getRolesIDs(forUser: userID, in: reaction.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
                 print("\(String(describing: error))")
                 completion(userID, false)
@@ -74,7 +75,7 @@ fileprivate extension VerificationRequestProcessor {
             var newRoleIDs = roleIDs
             newRoleIDs.append(roleIDToAssign)
             
-            self.roleService.modify(user: userID, toHaveRoles: newRoleIDs) { modifyError in
+            self.roleService.modify(user: userID, in: reaction.guildID, toHaveRoles: newRoleIDs) { modifyError in
                 guard modifyError == nil else {
                     print("\(String(describing: modifyError))")
                     completion(userID, false)

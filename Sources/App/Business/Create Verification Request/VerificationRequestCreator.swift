@@ -11,6 +11,7 @@ protocol VerificationMessage {
     var fromBot: Bool { get }
     var authorDMID: RecepientID { get }
     var authorID: UserID { get }
+    var guildID: GuildID { get }
     var content: String { get }
 }
 
@@ -40,7 +41,7 @@ class VerificationRequestCreator {
             return
         }
         
-        roleService.getRolesIDs(forUser: authorID) { roleIDsOrNil, error in
+        roleService.getRolesIDs(forUser: authorID, in: message.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
                 print("Cannot get roles for user. Error: \(String(describing: error))")
                 return

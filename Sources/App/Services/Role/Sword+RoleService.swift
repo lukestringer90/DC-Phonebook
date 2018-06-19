@@ -9,15 +9,15 @@ import Foundation
 import Sword
 
 extension Sword: RoleService {
-    func modify(user userID: UserID, toHaveRoles roleIDs: [RoleID], then completion: ServiceCompletion?) {
+    func modify(user userID: UserID, in guildID: GuildID, toHaveRoles roleIDs: [RoleID], then completion: ServiceCompletion?) {
         let options = ["roles": roleIDs]
-        modifyMember(Snowflake(userID), in: guildID, with: options) { error in
+        modifyMember(Snowflake(userID), in: Snowflake(guildID), with: options) { error in
             completion?(error)
         }
     }
     
-    func getRolesIDs(forUser userID: UserID, then completion: @escaping GetRolesCompletion) {
-        getMember(Snowflake(userID), from: guildID) { memberOrNil, error in
+    func getRolesIDs(forUser userID: UserID, in guildID: GuildID, then completion: @escaping GetRolesCompletion) {
+        getMember(Snowflake(userID), from: Snowflake(guildID)) { memberOrNil, error in
             guard let member = memberOrNil else {
                 completion(nil, error)
                 return
@@ -25,15 +25,6 @@ extension Sword: RoleService {
             
             let roleIDs = member.roles.map { $0.id.rawValue }
             completion(roleIDs, nil)
-        }
-    }
-
-    private var guildID: Snowflake {
-        get {
-            guard let guildID = guilds.first?.value.id else {
-                fatalError("Cannot get guild")
-            }
-            return guildID
         }
     }
 }

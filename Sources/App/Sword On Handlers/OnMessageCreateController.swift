@@ -83,6 +83,7 @@ extension Message {
             }
             
             let verificationMessage = Message.Verification(fromBot: author.isBot == true, authorID: author.id.rawValue, content: self.content, authorDMID: dm.id.rawValue)
+            let verificationMessage = Message.Verification(guildID: guildID, fromBot: author.isBot == true, authorID: author.id.rawValue, content: self.content, authorDMID: dm.id.rawValue)
             completion(verificationMessage)
         }
     }

@@ -13,6 +13,7 @@ typealias RecepientID = UInt64
 typealias UserID = UInt64
 typealias RoleID = UInt64
 typealias MessageID = UInt64
+typealias GuildID = UInt64
 
 extension UserID {
     var asTaggedMessage: String {
