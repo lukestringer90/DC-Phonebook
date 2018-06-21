@@ -22,12 +22,14 @@ class VerificationRequestCreator {
     let roleService: RoleService
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
+    let verifyStartSignalStore: VerifyStartSignal.Store
     
-    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, verifyStartSignalStore signalStore: VerifyStartSignal.Store) {
         self.messageService = messageService
-        self.verificationRequestStore = store
+        self.verificationRequestStore = requestStore
         self.loggingService = loggingService
         self.roleService = roleService
+        self.verifyStartSignalStore = signalStore
     }
     
     func handle(message: VerificationMessage) {
@@ -90,6 +92,10 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             }
             
             self.verificationRequestStore.add(request)
+            // TODO: Turn into single command
+            if let verifyStartSignal = self.verifyStartSignalStore.getFirst(matching: request.userID) {
+                self.verifyStartSignalStore.remove(verifyStartSignal)
+            }
             self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
     }

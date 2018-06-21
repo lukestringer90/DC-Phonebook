@@ -40,9 +40,11 @@ class OnReactionAddController {
                     return
                 }
                 
-                let reaction = VerificationRequest.Reaction(channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name, reactorID: userID.rawValue)
+                guard let guildID = message.member?.guild?.id.rawValue else {
+                    print("Cannot get Guild ID")
+                    return
+                }
 
-                
                 let reaction = VerificationRequest.Reaction(guildID: guildID
                     , channelID: message.channel.id.rawValue, messageID: messageID.rawValue, messageContent: message.content, emojiName: emoji.name, reactorID: userID.rawValue)
                 self.verificationProcessor.handle(reaction: reaction)
