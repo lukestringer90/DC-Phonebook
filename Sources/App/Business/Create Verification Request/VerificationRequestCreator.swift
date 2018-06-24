@@ -39,7 +39,7 @@ class VerificationRequestCreator {
         let authorDMID = message.authorDMID
         
         guard verificationRequestStore.getFirst(matching: authorID) == nil else {
-            messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID)
+            messageService.sendMessage("You already have a verification request waiting to be processed by the mods.", to: authorDMID)
             return
         }
         
