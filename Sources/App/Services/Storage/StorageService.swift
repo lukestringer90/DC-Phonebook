@@ -103,6 +103,12 @@ extension StorageService {
         setStored(toStore)
     }
     
+    func remove(matching entityID: Entity.UniqueIDType) {
+        if let entity = getFirst(matching: entityID) {
+            remove(entity)
+        }
+    }
+    
     func all() -> [Entity] {
         return allAsData().compactMap { Entity.decode(from: $0) }
     }

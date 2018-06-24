@@ -11,6 +11,7 @@ protocol VerificationMessage {
     var fromBot: Bool { get }
     var authorDMID: RecepientID { get }
     var authorID: UserID { get }
+    var guildID: GuildID { get }
     var content: String { get }
 }
 
@@ -21,12 +22,14 @@ class VerificationRequestCreator {
     let roleService: RoleService
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
+    let verifyStartSignalStore: VerifyStartSignal.Store
     
-    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, verifyStartSignalStore signalStore: VerifyStartSignal.Store) {
         self.messageService = messageService
-        self.verificationRequestStore = store
+        self.verificationRequestStore = requestStore
         self.loggingService = loggingService
         self.roleService = roleService
+        self.verifyStartSignalStore = signalStore
     }
     
     func handle(message: VerificationMessage) {
@@ -40,7 +43,7 @@ class VerificationRequestCreator {
             return
         }
         
-        roleService.getRolesIDs(forUser: authorID) { roleIDsOrNil, error in
+        roleService.getRolesIDs(forUser: authorID, in: message.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
                 print("Cannot get roles for user. Error: \(String(describing: error))")
                 return
@@ -89,6 +92,8 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             }
             
             self.verificationRequestStore.add(request)
+            self.verifyStartSignalStore.remove(matching: request.userID)
+            
             self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
     }
