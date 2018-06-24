@@ -92,10 +92,8 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             }
             
             self.verificationRequestStore.add(request)
-            // TODO: Turn into single command
-            if let verifyStartSignal = self.verifyStartSignalStore.getFirst(matching: request.userID) {
-                self.verifyStartSignalStore.remove(verifyStartSignal)
-            }
+            self.verifyStartSignalStore.remove(matching: request.userID)
+            
             self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
     }
