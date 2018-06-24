@@ -7,6 +7,7 @@
 
 import Foundation
 
+// A Verify Start Signal capture the point at which a user (with an UserID) from a guild (with a GuildID) starts the verification process.
 struct VerifyStartSignal: Codable {
     let userID: UserID
     let guildID: GuildID
