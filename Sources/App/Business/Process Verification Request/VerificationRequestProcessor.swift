@@ -77,7 +77,7 @@ fileprivate extension VerificationRequestProcessor {
             
             self.roleService.modify(user: userID, in: reaction.guildID, toHaveRoles: newRoleIDs) { modifyError in
                 guard modifyError == nil else {
-                    print("\(String(describing: modifyError))")
+                    print("Failed giving roles \(newRoleIDs). Error: \(String(describing: modifyError))")
                     completion(userID, false)
                     return
                 }
