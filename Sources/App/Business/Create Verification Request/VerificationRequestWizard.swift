@@ -15,7 +15,6 @@ class VerificationRequestWizard {
     
     // MARK: - Private vars
     
-    private let baseScrollURL = "https://dragcave.net/user/"
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
     private(set) var forumName: String?
@@ -30,7 +29,7 @@ class VerificationRequestWizard {
     
     var scrollURL: String? {
         guard let name = scrollNameTemp else {  return nil }
-        return baseScrollURL + name
+        return Constants.DragonCave.scrollBaseURL + name
     }
     
     // MARK: - Public Functions
@@ -87,7 +86,7 @@ fileprivate extension VerificationRequestWizard {
     }
     
     func validate(forumURL: String) -> Bool {
-        return forumURL.hasPrefix("https://forums.dragcave.net/profile/")
+        return forumURL.hasPrefix(Constants.DragonCave.forumBaseURL)
     }
     
     func parseConfirmation(_ message: String, confirm: () -> (), retry: ()-> (), invalid: (_ message: String) -> () = { print("Invalid message: \($0)") }) {

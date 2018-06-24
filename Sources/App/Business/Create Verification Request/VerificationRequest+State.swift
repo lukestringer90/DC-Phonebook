@@ -28,7 +28,7 @@ extension VerificationRequest.State {
                 let message = """
                 Hi! I'm the DC-Phonebook Bot. I can help you get verified.
 
-                To do this I will need your **Scroll Name** (e.g. `lulu_witch`) and **Forum Profile URL** (e.g. `https://forums.dragcave.net/profile/67335-lulu_witch/`).
+                To do this I will need your **Scroll Name** (e.g. `\(Constants.DragonCave.exampleScrollName)`) and **Forum Profile URL** (e.g. `\(Constants.DragonCave.exampleForumURL)`).
                 
                 So let's get started.
 
@@ -48,7 +48,7 @@ extension VerificationRequest.State {
             case .denied:
                 return "Your request for verification has been denied at this time. Please try again ensuring your information is correct. If you have any questions or concerns please contact a mod."
             case .invalidForum:
-                return "That is not a valid forum URL. It must start with `https://forums.dragcave.net/profile/`. Please try again.\n\(VerificationRequest.State.requestForum.userMessage)"
+                return "That is not a valid forum URL. It must start with `\(Constants.DragonCave.forumBaseURL)`. Please try again.\n\(VerificationRequest.State.requestForum.userMessage)"
             }
         }
     }
