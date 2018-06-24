@@ -5,7 +5,7 @@ import Foundation
 extension Droplet {
     func setupRoutes() throws {
         
-        let envKey = "DISCORD_PHONEBOOK_BOT_TOKEN"
+        let envKey = "DISCORD_BOT_TOKEN"
         
         guard let token = ProcessInfo.processInfo.environment[envKey] else {
             fatalError("No \(envKey) varaible set")

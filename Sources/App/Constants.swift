@@ -19,13 +19,13 @@ struct Constants {
     struct Discord {
         
         struct ChannelID {
-            static let phoneBookRequests = UInt64(450397327295905803)
-            static let phoneBookDirectory = UInt64(450397213319757854)
-            static let logs = UInt64(450397168046440449)
+            static let phoneBookRequests = UInt64(460409351249854482)
+            static let phoneBookDirectory = UInt64(460409431562256385)
+            static let logs = UInt64(460409465439518721)
         }
         
         struct Role {
-            static let verified = UInt64(455104920673058817)
+            static let verified = UInt64(460409573053038603)
         }
         
         struct VerifyStartMessage {
