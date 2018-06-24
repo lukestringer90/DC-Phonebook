@@ -39,10 +39,10 @@ extension VerificationRequest {
         
         let userIDString = string[start...end]
         
-        guard let userIDDouble = Double(userIDString) else {
+        guard let userIDNumber = UInt64(userIDString) else {
             fatalError("Cannot parse message string into double for user ID ")
         }
         
-        return UserID(userIDDouble)
+        return UserID(userIDNumber)
     }
 }
