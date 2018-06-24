@@ -15,7 +15,6 @@ class VerificationRequestWizard {
     
     // MARK: - Private vars
     
-    private let baseScrollURL = "https://dragcave.net/user/"
     private var scrollNameTemp: String?
     private var formumNameTemp: String?
     private(set) var forumName: String?
@@ -30,7 +29,7 @@ class VerificationRequestWizard {
     
     var scrollURL: String? {
         guard let name = scrollNameTemp else {  return nil }
-        return baseScrollURL + name
+        return Constants.DragonCave.scrollBaseURL + name
     }
     
     // MARK: - Public Functions
@@ -54,8 +53,9 @@ class VerificationRequestWizard {
                 state = .requestScroll
             })
         case .requestForum:
-            formumNameTemp = message
-            state = .confirmForum(url: formumNameTemp!)
+            handleInputOf(forumURL: message)
+        case .invalidForum:
+            handleInputOf(forumURL: message)
         case .confirmForum(_):
             parseConfirmation(message, confirm: {
                 forumName = formumNameTemp
@@ -75,6 +75,20 @@ class VerificationRequestWizard {
 // MARK: - Private Functions
 
 fileprivate extension VerificationRequestWizard {
+    func handleInputOf(forumURL: String) {
+        if validate(forumURL: forumURL) {
+            formumNameTemp = forumURL
+            state = .confirmForum(url: formumNameTemp!)
+        }
+        else {
+            state = .invalidForum(url: forumURL)
+        }
+    }
+    
+    func validate(forumURL: String) -> Bool {
+        return forumURL.hasPrefix(Constants.DragonCave.forumBaseURL)
+    }
+    
     func parseConfirmation(_ message: String, confirm: () -> (), retry: ()-> (), invalid: (_ message: String) -> () = { print("Invalid message: \($0)") }) {
         switch message.lowercased() {
         case "y", "yes": confirm()

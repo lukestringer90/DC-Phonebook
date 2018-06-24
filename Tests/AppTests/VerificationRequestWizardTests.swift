@@ -95,8 +95,27 @@ class VerificationRequestWizardTests: XCTestCase {
     }
     
     func testInputForumWithNoMessage() {
-        wizard.inputMessage("")
-        XCTAssertEqual(wizard.state, VerificationRequest.State.requestScroll)
+        wizard.inputMessage(scrollName)
+        wizard.inputMessage("Yes")
+        XCTAssertEqual(wizard.state, VerificationRequest.State.requestForum)
+    }
+    
+    // MARK: Invalid forum
+    
+    func testInputInvalidForum() {
+        let badForumURL = "http://www.google.com/67335-lulu_witch"
+        wizard.inputMessage(scrollName)
+        wizard.inputMessage("Yes")
+        wizard.inputMessage(badForumURL)
+        XCTAssertEqual(wizard.state, VerificationRequest.State.invalidForum(url: badForumURL))
+    }
+    
+    func testRetryInvalidForum() {
+        wizard.inputMessage(scrollName)
+        wizard.inputMessage("Yes")
+        wizard.inputMessage("http://www.google.com/67335-lulu_witch")
+        wizard.inputMessage(forumURL)
+        XCTAssertEqual(wizard.state, VerificationRequest.State.confirmForum(url: forumURL))
     }
     
     // MARK: Retry forum
