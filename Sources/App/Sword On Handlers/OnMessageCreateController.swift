@@ -57,7 +57,15 @@ class OnMessageController {
                 During a DM conversation it cannot be determined which Guild the original verify start command
                 was called from.
                 */
-                guard let guildID = message.member?.guild?.id.rawValue else { return }
+                guard let member = message.member else {
+					print("Cannot get member for message sent by author \(userID)")
+					return
+				}
+				guard let guildID = member.guild?.id.rawValue else {
+					print("Cannot get guild ID for message sent by author \(userID)")
+					return
+				}
+				
                 self.verifyStartSignalStore.add(VerifyStartSignal(userID: userID, guildID: guildID))
             }
             

@@ -61,7 +61,9 @@ class VerificationRequestCreator {
                     wizard.delegate = self
                     self.userIDWizardMap[authorID] = wizard
                     self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
-                        print("\(String(describing: error))")
+						if let error = error {
+							print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+						}
                     }
                 }
                 else {
@@ -71,7 +73,9 @@ class VerificationRequestCreator {
             else if let wizard = self.userIDWizardMap[authorID] {
                 wizard.inputMessage(message.content)
                 self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
-                    print("\(String(describing: error))")
+					if let error = error {
+						print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+					}
                 }
             }
         }
