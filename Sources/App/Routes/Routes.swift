@@ -10,8 +10,10 @@ extension Droplet {
         guard let token = ProcessInfo.processInfo.environment[envKey] else {
             fatalError("No \(envKey) varaible set")
         }
-        
-        let bot = Sword(token: token)
+		
+		var options = SwordOptions()
+		options.willCacheAllMembers = true
+        let bot = Sword(token: token, with: options)
         
         let onMessageController = OnMessageController(discord: bot)
         let onReactionAddController = OnReactionAddController(discord: bot)
