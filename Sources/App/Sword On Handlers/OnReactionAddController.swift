@@ -28,7 +28,7 @@ class OnReactionAddController {
         
         discord.getUser(userID) { userOrNil, error in
             guard let user = userOrNil else {
-                print(error ?? "Unknown error getting user")
+				print("Failed to get user \(userID). Error: \(String(describing: error))")
                 return
             }
             
@@ -36,7 +36,7 @@ class OnReactionAddController {
             
             self.discord.getMessage(messageID, from: channel.id) { messageOrNil, error in
                 guard let message = messageOrNil else {
-                    print(error ?? "Unknown error getting message")
+                    print("Failed to get user \(messageID). Error: \(String(describing: error))")
                     return
                 }
                 

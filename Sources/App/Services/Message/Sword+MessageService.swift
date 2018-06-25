@@ -38,7 +38,7 @@ extension Sword: MessageService {
     func getDirectMessageID(forUser userID: UserID, then completion: @escaping GetDirectMessageIDCompletion) {
         getDM(for: Snowflake(userID)) { dmOrNil, error in
             guard let dm = dmOrNil else {
-                print("\(String(describing: error))")
+                completion(nil)
                 return
             }
             
