@@ -1,0 +1,16 @@
+{
+	"channelIDs" : {
+		"phoneBookRequests" : null,
+		"phoneBookDirectory" : null,
+		"logs" : null
+	},
+
+	"roleIDs" : {
+		"verified" : null
+	},
+
+	"verifiedStartMessage" : {
+		"command" : "!verify",
+		"secondsBeforeDeletion" : 7.0
+	}
+}
