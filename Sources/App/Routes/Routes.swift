@@ -5,6 +5,9 @@ import Foundation
 extension Droplet {
     func setupRoutes() throws {
         
+        let env = self.config.environment
+        print("Environment: \(env.description)")
+        
         let discordConfigFileName = "discord"
         let secretsConfigFilename = "secrets"
         let botTokenKey = "discordBotToken"
