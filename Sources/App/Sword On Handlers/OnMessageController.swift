@@ -20,7 +20,9 @@ class OnMessageController {
     required init(discord: Sword, config: DiscordConfig) {
         self.discord = discord
         self.config = config
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: self.discord, verificationRequestStore: verificationRequestStore, verifyStartSignalStore: verifyStartSignalStore, config: self.config)
+        
+        let logger = self.discord.logger(forChannel: self.config.channelIDs.logs)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: logger, verificationRequestStore: verificationRequestStore, verifyStartSignalStore: verifyStartSignalStore, config: self.config)
         self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord, config: config)
     }
     
