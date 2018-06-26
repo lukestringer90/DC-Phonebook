@@ -15,10 +15,13 @@ class OnMessageController {
     private let verifyStartMessageController: VerifyStartMessageController
     private let verifyStartSignalStore = VerifyStartSignal.Store.shared
     
-    required init(discord: Sword) {
+    let config: DiscordConfig
+    
+    required init(discord: Sword, config: DiscordConfig) {
         self.discord = discord
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: self.discord, verificationRequestStore: verificationRequestStore, verifyStartSignalStore: verifyStartSignalStore)
-        self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord)
+        self.config = config
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: self.discord, verificationRequestStore: verificationRequestStore, verifyStartSignalStore: verifyStartSignalStore, config: self.config)
+        self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord, config: config)
     }
     
     func handle(data: Any) {
@@ -33,7 +36,7 @@ class OnMessageController {
         
         discord.getDM(for: user.id) { dmOrNil, dmError in
             defer {
-                if message.content == Constants.Discord.VerifyStartMessage.command {
+                if message.content == self.config.verifyStartMessage.command {
                     self.verifyStartMessageController.handle(startMessage: message)
                 }
             }
@@ -45,7 +48,7 @@ class OnMessageController {
             
             let userID = user.id.rawValue
             let messageIsDMToBot = message.channel.id == dm.id
-            let mesageIsVerifyStart = message.content == Constants.Discord.VerifyStartMessage.command
+            let mesageIsVerifyStart = message.content == self.config.verifyStartMessage.command
             guard mesageIsVerifyStart || messageIsDMToBot else { return }
             
             // Check to see if user is using the verify start command for the first time

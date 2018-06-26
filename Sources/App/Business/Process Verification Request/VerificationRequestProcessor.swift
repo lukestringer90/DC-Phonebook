@@ -22,12 +22,14 @@ class VerificationRequestProcessor {
     let messageService: MessageService
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
+    let config: DiscordConfig
     
-    init(roleService: RoleService, messageService: MessageService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
+    init(roleService: RoleService, messageService: MessageService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store, config: DiscordConfig) {
         self.roleService = roleService
         self.messageService = messageService
         self.loggingService = loggingService
         self.verificationRequestStore = store
+        self.config = config
     }
     
     func handle(reaction: ReactionToVerificationRequest) {
@@ -65,7 +67,7 @@ fileprivate extension VerificationRequestProcessor {
                 return
             }
             
-            let roleIDToAssign = Constants.Discord.Role.verified
+            let roleIDToAssign = self.config.roleIDs.verified
             guard !roleIDs.contains(roleIDToAssign) else {
                 print("User already verified")
                 completion(userID, false)
@@ -84,7 +86,7 @@ fileprivate extension VerificationRequestProcessor {
                 
                 self.loggingService.log(VerificationEvent.requestAccepted(applicant: userID, reviewer: reaction.reactorID, at: Date()))
                 
-                self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
+                self.messageService.sendMessage(reaction.messageContent, to: self.config.channelIDs.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
                         print("\(String(describing: sendError))")
                         completion(userID, false)

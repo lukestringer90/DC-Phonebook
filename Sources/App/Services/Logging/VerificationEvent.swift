@@ -11,8 +11,8 @@ enum VerificationEvent: Event {
     case requestAccepted(applicant: UserID, reviewer: UserID, at: Date)
     case requestDenied(applicant: UserID, reviewer: UserID, at: Date)
     case requestSubmitted(request: VerificationRequest, at: Date)
-    case started(applicantID: UserID, at: Date)
-    case startedDuplicate(applicantID: UserID, at: Date)
+    case started(command: String, applicantID: UserID, at: Date)
+    case startedDuplicate(command: String, applicantID: UserID, at: Date)
     
     func message() -> String {
         switch self {
@@ -22,10 +22,10 @@ enum VerificationEvent: Event {
             return "\(date.asLogFormat): \(reviewerID.asTaggedMessage) **DENIED** request for \(applicantID.asTaggedMessage)"
         case .requestSubmitted(let request, let date):
             return "\(date.asLogFormat): \(request.userID.asTaggedMessage) **SUBMITTED** request:\n\n\(request.messageRepresentation)"
-        case .started(let applicantID,  let date):
-            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) **STARTED** verification process using `\(Constants.Discord.VerifyStartMessage.command)`"
-        case .startedDuplicate(let applicantID, let date):
-            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) used `\(Constants.Discord.VerifyStartMessage.command)` without completing verification process"
+        case .started(let command, let applicantID,  let date):
+            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) **STARTED** verification process using `\(command)`"
+        case .startedDuplicate(let command, let applicantID, let date):
+            return "\(date.asLogFormat): \(applicantID.asTaggedMessage) used `\(command)` without completing verification process"
         }
     }
 }

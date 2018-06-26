@@ -9,7 +9,7 @@
 		"verified" : 455104920673058817
 	},
 
-	"verifiedStartMessage" : {
+	"verifyStartMessage" : {
 		"command" : "!verify",
 		"secondsBeforeDeletion" : 7.0
 	}
