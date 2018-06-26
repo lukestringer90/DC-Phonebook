@@ -5,10 +5,11 @@ import Foundation
 extension Droplet {
     func setupRoutes() throws {
         
-        let envKey = "DISCORD_BOT_TOKEN"
+        let secretsConfigFilename = "secrets"
+        let envKey = "discordBotToken"
         
-        guard let token = ProcessInfo.processInfo.environment[envKey] else {
-            fatalError("No \(envKey) varaible set")
+        guard let token = config[secretsConfigFilename, envKey]?.string else {
+            fatalError("No \(envKey) value in \(secretsConfigFilename).json")
         }
 		
 		var options = SwordOptions()
