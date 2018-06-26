@@ -23,13 +23,16 @@ class VerificationRequestCreator {
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
     let verifyStartSignalStore: VerifyStartSignal.Store
+
+    let config: DiscordConfig
     
-    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, verifyStartSignalStore signalStore: VerifyStartSignal.Store) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, verifyStartSignalStore signalStore: VerifyStartSignal.Store, config: DiscordConfig) {
         self.messageService = messageService
         self.verificationRequestStore = requestStore
         self.loggingService = loggingService
         self.roleService = roleService
         self.verifyStartSignalStore = signalStore
+        self.config = config
     }
     
     func handle(message: VerificationMessage) {
@@ -39,7 +42,7 @@ class VerificationRequestCreator {
         let authorDMID = message.authorDMID
         
         guard verificationRequestStore.getFirst(matching: authorID) == nil else {
-            messageService.sendMessage("You alredy have a verification request waiting to be processed by the mods.", to: authorDMID)
+            messageService.sendMessage("You already have a verification request waiting to be processed by the mods.", to: authorDMID)
             return
         }
         
@@ -49,29 +52,33 @@ class VerificationRequestCreator {
                 return
             }
             
-            guard !roleIDs.contains(Constants.Discord.Role.verified) else {
+            guard !roleIDs.contains(self.config.roleIDs.verified) else {
                 self.messageService.sendMessage("You are already verified.", to: authorDMID)
                 return
             }
             
-            if message.content == Constants.Discord.VerifyStartMessage.command {
+            if message.content == self.config.verifyStartMessage.command {
                 if self.userIDWizardMap[authorID] == nil {
-                    self.loggingService.log(VerificationEvent.started(applicantID: authorID, at: Date()))
+                    self.loggingService.log(VerificationEvent.started(command: self.config.verifyStartMessage.command, applicantID: authorID, at: Date()))
                     let wizard = VerificationRequestWizard(userID: authorID)
                     wizard.delegate = self
                     self.userIDWizardMap[authorID] = wizard
                     self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
-						print("Failed to send wizard state message to \(authorID). Error: \(String(describing: error))")
+						if let error = error {
+							print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+						}
                     }
                 }
                 else {
-                    self.loggingService.log(VerificationEvent.startedDuplicate(applicantID: authorID, at: Date()))
+                    self.loggingService.log(VerificationEvent.startedDuplicate(command: self.config.verifyStartMessage.command, applicantID: authorID, at: Date()))
                 }
             }
             else if let wizard = self.userIDWizardMap[authorID] {
                 wizard.inputMessage(message.content)
                 self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
-                    print("Failed to send wizard state message to \(authorID). Error: \(String(describing: error))")
+					if let error = error {
+						print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+					}
                 }
             }
         }
@@ -81,7 +88,7 @@ class VerificationRequestCreator {
 extension VerificationRequestCreator: VerificationRequestWizardDelegate {
     func wizard(_ wizard: VerificationRequestWizard, completedWith request: VerificationRequest) {
         
-        messageService.sendMessage(request.messageRepresentation, to: Constants.Discord.ChannelID.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
+        messageService.sendMessage(request.messageRepresentation, to: config.channelIDs.phoneBookRequests, withEmojiReactions: [.tick, .cross]) { error in
             defer {
                 self.userIDWizardMap[request.userID] = nil
             }

@@ -12,10 +12,13 @@ class OnReactionAddController {
     
     let discord: Sword
     let verificationProcessor: VerificationRequestProcessor
+    let config: DiscordConfig
     
-    required init(discord: Sword) {
+    required init(discord: Sword, config: DiscordConfig) {
         self.discord = discord
-        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord, loggingService: self.discord, verificationRequestStore: VerificationRequest.Store.shared)
+        self.config = config
+        let logger = self.discord.logger(forChannel: self.config.channelIDs.logs)
+        self.verificationProcessor = VerificationRequestProcessor(roleService: self.discord, messageService: self.discord, loggingService: logger, verificationRequestStore: VerificationRequest.Store.shared, config: config)
     }
     
     func handle(data: Any) {
@@ -23,7 +26,7 @@ class OnReactionAddController {
         
         guard
             let (channel, userID, messageID, emoji) = data as? Reaction,
-            channel.id.rawValue == Constants.Discord.ChannelID.phoneBookRequests
+            channel.id.rawValue == config.channelIDs.phoneBookRequests
             else { return }
         
         discord.getUser(userID) { userOrNil, error in

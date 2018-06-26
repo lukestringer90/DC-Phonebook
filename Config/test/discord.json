@@ -1,0 +1,16 @@
+{
+	"channelIDs" : {
+		"phoneBookRequests" : 460409351249854482,
+		"phoneBookDirectory" : 460409431562256385,
+		"logs" : 460409465439518721
+	},
+
+	"roleIDs" : {
+		"verified" : 460409573053038603
+	},
+
+	"verifyStartMessage" : {
+		"command" : "!verify",
+		"secondsBeforeDeletion" : 7.0
+	}
+}

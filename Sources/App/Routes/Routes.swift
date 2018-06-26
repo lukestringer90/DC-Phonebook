@@ -5,16 +5,28 @@ import Foundation
 extension Droplet {
     func setupRoutes() throws {
         
-        let envKey = "DISCORD_PHONEBOOK_BOT_TOKEN"
+        let env = self.config.environment
+        print("Environment: \(env.description)")
         
-        guard let token = ProcessInfo.processInfo.environment[envKey] else {
-            fatalError("No \(envKey) varaible set")
+        let discordConfigFileName = "discord"
+        let secretsConfigFilename = "secrets"
+        let botTokenKey = "discordBotToken"
+        
+        guard let token = self.config[secretsConfigFilename, botTokenKey]?.string else {
+            fatalError("No \(botTokenKey) value in \(secretsConfigFilename).json")
         }
         
-        let bot = Sword(token: token)
+        guard let discordConfigFile = self.config[discordConfigFileName] else {
+            fatalError("No \(discordConfigFileName).json")
+        }
+        let config = DiscordConfig(config: discordConfigFile)
+		
+		var options = SwordOptions()
+		options.willCacheAllMembers = true
+        let bot = Sword(token: token, with: options)
         
-        let onMessageController = OnMessageController(discord: bot)
-        let onReactionAddController = OnReactionAddController(discord: bot)
+        let onMessageController = OnMessageController(discord: bot, config: config)
+        let onReactionAddController = OnReactionAddController(discord: bot, config: config)
         
         bot.editStatus(to: "online", playing: "In Development")
         bot.on(.messageCreate, do: onMessageController.handle)

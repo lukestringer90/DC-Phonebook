@@ -22,12 +22,14 @@ class VerificationRequestProcessor {
     let messageService: MessageService
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
+    let config: DiscordConfig
     
-    init(roleService: RoleService, messageService: MessageService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store) {
+    init(roleService: RoleService, messageService: MessageService, loggingService: LoggingService, verificationRequestStore store: VerificationRequest.Store, config: DiscordConfig) {
         self.roleService = roleService
         self.messageService = messageService
         self.loggingService = loggingService
         self.verificationRequestStore = store
+        self.config = config
     }
     
     func handle(reaction: ReactionToVerificationRequest) {
@@ -60,14 +62,14 @@ fileprivate extension VerificationRequestProcessor {
     func approve(userID: UserID, reaction: ReactionToVerificationRequest, then completion: @escaping ProcessorCompletion) {
         roleService.getRolesIDs(forUser: userID, in: reaction.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
-				print("Failed to get roles for \(userID). Error: \(String(describing: error))")
+                print("\(String(describing: error))")
                 completion(userID, false)
                 return
             }
             
-            let roleIDToAssign = Constants.Discord.Role.verified
+            let roleIDToAssign = self.config.roleIDs.verified
             guard !roleIDs.contains(roleIDToAssign) else {
-                print("User \(userID) already verified")
+                print("User already verified")
                 completion(userID, false)
                 return
             }
@@ -77,23 +79,23 @@ fileprivate extension VerificationRequestProcessor {
             
             self.roleService.modify(user: userID, in: reaction.guildID, toHaveRoles: newRoleIDs) { modifyError in
                 guard modifyError == nil else {
-                    print("Failed to modify roles for user \(userID). Error: \(String(describing: error))")
+                    print("Failed giving roles \(newRoleIDs). Error: \(String(describing: modifyError))")
                     completion(userID, false)
                     return
                 }
                 
                 self.loggingService.log(VerificationEvent.requestAccepted(applicant: userID, reviewer: reaction.reactorID, at: Date()))
                 
-                self.messageService.sendMessage(reaction.messageContent, to: Constants.Discord.ChannelID.phoneBookDirectory) { sendError in
+                self.messageService.sendMessage(reaction.messageContent, to: self.config.channelIDs.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
-                        print("Failed to send verification messasge content to phonebook channel. Error: \(String(describing: error))")
+                        print("\(String(describing: sendError))")
                         completion(userID, false)
                         return
                     }
                     
                     self.messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
                         guard deleteError == nil else {
-                            print("Failed to delete message \(reaction.messageID). Error: \(String(describing: error))")
+                            print("\(String(describing: deleteError))")
                             completion(userID, false)
                             return
                         }
@@ -109,7 +111,7 @@ fileprivate extension VerificationRequestProcessor {
                             
                             self.messageService.sendMessage(approvedState.userMessage, to: recepientID) { sendError in
                                 guard sendError == nil else {
-									print("Failed to send approved message to \(recepientID). Error: \(String(describing: error))")
+                                    print("\(String(describing: sendError))")
                                     completion(userID, false)
                                     return
                                 }
@@ -129,7 +131,6 @@ fileprivate extension VerificationRequestProcessor {
         
         messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
             guard deleteError == nil else {
-				print("Failed to delete message \(reaction.messageID). Error: \(String(describing: deleteError))")
                 print("\(String(describing: deleteError))")
                 completion(userID, false)
                 return
@@ -147,7 +148,7 @@ fileprivate extension VerificationRequestProcessor {
                 
                 self.messageService.sendMessage(deniedState.userMessage, to: recepientID) { sendError in
                     guard sendError == nil else {
-                        print("Failed to send denied message to \(recepientID). Error: \(String(describing: sendError))")
+                        print("\(String(describing: sendError))")
                         completion(userID, false)
                         return
                     }
