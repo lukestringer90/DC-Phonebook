@@ -12,8 +12,8 @@ extension Droplet {
         let secretsConfigFilename = "secrets"
         let botTokenKey = "discordBotToken"
         
-        guard let token = self.config[secretsConfigFilename, botTokenKey]?.string else {
-            fatalError("No \(botTokenKey) value in \(secretsConfigFilename).json")
+        guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
+            fatalError("No \(botTokenKey) env var")
         }
         
         guard let discordConfigFile = self.config[discordConfigFileName] else {
