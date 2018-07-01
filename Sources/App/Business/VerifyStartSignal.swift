@@ -9,15 +9,25 @@ import Foundation
 import FluentProvider
 
 // A Verify Start Signal capture the point at which a user (with an UserID) from a guild (with a GuildID) starts the verification process.
-class VerifyStartSignal: Model {
+class VerifyStartSignal: Storable {
     let userID: UserID
     let guildID: GuildID
-	let storage = Storage()
 	
 	init(userID: UserID, guildID: GuildID) {
 		self.userID = userID
 		self.guildID = guildID
 	}
+	
+	// MARK: - Storable
+	
+	var uniqueID: UserID {
+		return userID
+	}
+	typealias UniqueIDType = UserID
+	
+	// MARK: - Model
+	
+	let storage = Storage()
 	
 	required init(row: Row) throws {
 		userID = try row.get("userID")
@@ -30,9 +40,9 @@ class VerifyStartSignal: Model {
 		try row.set("guildID", guildID)
 		return row
 	}
-}
-
-extension VerifyStartSignal: Preparation {
+	
+	// MARK: - Preperation
+	
 	static func prepare(_ database: Database) throws {
 		try database.create(self) { signals in
 			signals.id()
@@ -44,6 +54,13 @@ extension VerifyStartSignal: Preparation {
 	
 	static func revert(_ database: Database) throws {
 		try database.delete(self)
+	}
+}
+
+extension VerifyStartSignal {
+	struct Store: StorageService {
+		typealias Entity = VerifyStartSignal
+		static let shared = Store()
 	}
 }
 

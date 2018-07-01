@@ -22,16 +22,16 @@ class VerificationRequestCreator {
     let roleService: RoleService
     let loggingService: LoggingService
     let verificationRequestStore: VerificationRequest.Store
-//    let verifyStartSignalStore: VerifyStartSignal.Store
+    let verifyStartSignalStore: VerifyStartSignal.Store
 
     let config: DiscordConfig
     
-    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, config: DiscordConfig) {
+    init(messageService: MessageService, roleService: RoleService, loggingService: LoggingService, verificationRequestStore requestStore: VerificationRequest.Store, verifyStartSignalStore signalStore: VerifyStartSignal.Store, config: DiscordConfig) {
         self.messageService = messageService
         self.verificationRequestStore = requestStore
         self.loggingService = loggingService
         self.roleService = roleService
-//        self.verifyStartSignalStore = signalStore
+        self.verifyStartSignalStore = signalStore
         self.config = config
     }
     
@@ -99,8 +99,8 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             }
             
             self.verificationRequestStore.add(request)
-//            self.verifyStartSignalStore.remove(matching: request.userID)
-			
+            self.verifyStartSignalStore.remove(matching: request.userID)
+            
             self.loggingService.log(VerificationEvent.requestSubmitted(request: request, at: Date()))
         }
     }

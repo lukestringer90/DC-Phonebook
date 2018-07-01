@@ -14,9 +14,6 @@ protocol StorageService {
     /// The type of entity to store.
     associatedtype Entity: Storable
     
-    /// The unique key used as a namespace for the storage.
-    static var key: String { get }
-    
     
     /// Add an entity into storage.
     ///

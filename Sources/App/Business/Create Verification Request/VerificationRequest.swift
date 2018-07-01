@@ -8,7 +8,7 @@
 import Foundation
 import FluentProvider
 
-class VerificationRequest: Model {
+class VerificationRequest: Storable {
 	let userID: UserID
 	let scrollURL: String
 	let forumPage: String
@@ -21,6 +21,16 @@ class VerificationRequest: Model {
 		self.forumPage = forumPage
 		self.creationDate = creationDate
 	}
+	
+	// MARK: - Storable
+	
+	typealias UniqueIDType = UserID
+	
+	var uniqueID: UserID {
+		return userID
+	}
+	
+	// MARK: - Model
 	
 	required init(row: Row) throws {
 		userID = try row.get("userID")
@@ -36,6 +46,31 @@ class VerificationRequest: Model {
 		try row.set("forumPage", forumPage)
 		try row.set("creationDate", creationDate)
 		return row
+	}
+	
+	// MARK: - Preparation
+	
+	static func prepare(_ database: Database) throws {
+		try database.create(self) { signals in
+			signals.id()
+			// TODO: Make sure these work for UInt64
+			signals.int("userID")
+			signals.string("scrollURL")
+			signals.string("forumPage")
+			signals.date("creationDate")
+		}
+	}
+	
+	static func revert(_ database: Database) throws {
+		try database.delete(self)
+	}
+}
+
+
+extension VerificationRequest {
+	struct Store: StorageService {
+		typealias Entity = VerificationRequest
+		static let shared = Store()
 	}
 }
 
