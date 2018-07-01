@@ -7,7 +7,6 @@
 
 import Foundation
 
-// TODO: Add another logging service for print() statements
 // Conform String to Event so it can be logged
 protocol Event {
     func message() -> String
