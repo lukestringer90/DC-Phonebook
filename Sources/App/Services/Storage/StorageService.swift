@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FluentProvider
 
 /// Conform to the Storage protocol to faciltate the storage of a Storable entity.
 protocol StorageService {
@@ -60,22 +61,10 @@ protocol StorageService {
 
 
 /// Conform to the Storage protocol to facilitate encoding a type for storage, and decoding a type back out of storage.
-protocol Storable {
+protocol Storable: Model, Preparation {
     
     /// The type of the unique ID.
     associatedtype UniqueIDType: Hashable
-    
-    /// Encode a type into data ready for storage.
-    ///
-    /// - Returns: A data representation of the type.
-    func encode() -> Data
-    
-    
-    /// Decode data back into the type.
-    ///
-    /// - Parameter data: The data from storage.
-    /// - Returns: A instance of the type as decoded from the data.
-    static func decode(from data: Data) -> Self    
     
     /// The unique ID for the entity.
     var uniqueID: UniqueIDType { get }
@@ -86,21 +75,17 @@ protocol Storable {
 extension StorageService {
     
     func add(_ entity: Entity) {
-        // TODO: Disallow adding entity twice?
-        // Need a unique key / entity is hashable if so
-        let toStore = allAsData() + [entity.encode()]
-        setStored(toStore)
-    }
+        try! entity.save()
+		callDidUpdate()
+	}
     
     func add(_ entities: [Entity]) {
         entities.forEach { add($0) }
     }
     
     func remove(_ entity: Entity) {
-        var toStore = allAsData()
-        guard let index = toStore.index(of: entity.encode()) else { return }
-        toStore.remove(at: index)
-        setStored(toStore)
+        try! entity.delete()
+		callDidUpdate()
     }
     
     func remove(matching entityID: Entity.UniqueIDType) {
@@ -110,7 +95,7 @@ extension StorageService {
     }
     
     func all() -> [Entity] {
-        return allAsData().compactMap { Entity.decode(from: $0) }
+        return try! Entity.all()
     }
     
     func getFirst(matching entityID: Entity.UniqueIDType) -> Entity? {
@@ -118,26 +103,16 @@ extension StorageService {
     }
     
     func reset() {
-        setStored([Data]())
+		try! Entity.all().forEach { try! $0.delete() }
     }
 }
 
-
-// MARK: - Using UserDefaults as a storage mechanism
 fileprivate extension StorageService {
-    
-    private func allAsData() -> [Data] {
-        if let current = UserDefaults.standard.array(forKey: Self.key) as? [Data] {
-            return current
-        }
-        return [Data]()
-    }
-    
-    private func setStored(_ toStore: [Data]) {
-        UserDefaults.standard.set(toStore, forKey: Self.key)
-        didUpdate(to: all())
-    }
+	func callDidUpdate() {
+		didUpdate(to: try! Entity.all())
+	}
 }
+
 
 extension StorageService {
     // Make function optional

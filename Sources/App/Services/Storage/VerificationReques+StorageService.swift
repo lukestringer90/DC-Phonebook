@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import FluentProvider
 
 extension VerificationRequest {
     struct Store: StorageService {
@@ -15,17 +15,28 @@ extension VerificationRequest {
         static let shared = Store()
     }
 }
+
 extension VerificationRequest: Storable {
     typealias UniqueIDType = UInt64
     
     var uniqueID: UInt64 {
         return userID
     }
-    
-    func encode() -> Data {
-        return try! JSONEncoder().encode(self)
-    }
-    static func decode(from data: Data) -> VerificationRequest {
-        return try! JSONDecoder().decode(VerificationRequest.self, from: data)
-    }
+}
+
+extension VerificationRequest: Preparation {
+	static func prepare(_ database: Database) throws {
+		try database.create(self) { signals in
+			signals.id()
+			// TODO: Make sure these work for UInt64
+			signals.int("userID")
+			signals.string("scrollURL")
+			signals.string("forumPage")
+			signals.date("creationDate")
+		}
+	}
+	
+	static func revert(_ database: Database) throws {
+		try database.delete(self)
+	}
 }

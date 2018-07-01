@@ -14,6 +14,11 @@ class VerifyStartSignal: Model {
     let guildID: GuildID
 	let storage = Storage()
 	
+	init(userID: UserID, guildID: GuildID) {
+		self.userID = userID
+		self.guildID = guildID
+	}
+	
 	required init(row: Row) throws {
 		userID = try row.get("userID")
 		guildID = try row.get("guildID")
@@ -26,3 +31,19 @@ class VerifyStartSignal: Model {
 		return row
 	}
 }
+
+extension VerifyStartSignal: Preparation {
+	static func prepare(_ database: Database) throws {
+		try database.create(self) { signals in
+			signals.id()
+			// TODO: Make sure these work for UInt64
+			signals.int("userID")
+			signals.int("guildID")
+		}
+	}
+	
+	static func revert(_ database: Database) throws {
+		try database.delete(self)
+	}
+}
+
