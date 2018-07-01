@@ -13,8 +13,8 @@ class OnMessageController {
     private let verificationRequestCreator: VerificationRequestCreator
     private let verificationRequestStore = VerificationRequest.Store.shared
     private let verifyStartMessageController: VerifyStartMessageController
-    private let verifyStartSignalStore = VerifyStartSignal.Store.shared
-    
+//    private let verifyStartSignalStore = VerifyStartSignal.Store.shared
+	
     let config: DiscordConfig
     
     required init(discord: Sword, config: DiscordConfig) {
@@ -22,7 +22,7 @@ class OnMessageController {
         self.config = config
         
         let logger = self.discord.logger(forChannel: self.config.channelIDs.logs)
-        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: logger, verificationRequestStore: verificationRequestStore, verifyStartSignalStore: verifyStartSignalStore, config: self.config)
+        self.verificationRequestCreator = VerificationRequestCreator(messageService: discord, roleService: discord, loggingService: logger, verificationRequestStore: verificationRequestStore, config: self.config)
         self.verifyStartMessageController = VerifyStartMessageController(discord: self.discord, config: config)
     }
     
@@ -54,7 +54,9 @@ class OnMessageController {
             guard mesageIsVerifyStart || messageIsDMToBot else { return }
             
             // Check to see if user is using the verify start command for the first time
-            if mesageIsVerifyStart && self.verifyStartSignal(for: userID) == nil {
+			// TODO: Put back
+//            if mesageIsVerifyStart && self.verifyStartSignal(for: userID) == nil {
+			if mesageIsVerifyStart {
                 /*
                 When user starts the verification process we need to capture the UserID and the GuildID.
                 This is so that once the wizard has finished the DM conversation with the user
@@ -71,11 +73,12 @@ class OnMessageController {
 					return
 				}
 				
-                self.verifyStartSignalStore.add(VerifyStartSignal(userID: userID, guildID: guildID))
+//                self.verifyStartSignalStore.add(VerifyStartSignal(userID: userID, guildID: guildID))
             }
             
-            guard let guildID = self.verifyStartSignal(for: userID)?.guildID else { return }
-            
+//            guard let guildID = self.verifyStartSignal(for: userID)?.guildID else { return }
+			let guildID = UInt64(1234) // CHANGE ME
+			
             message.produceVerificationMessage(in: guildID) { verificationMessageOrNil in
                 guard let verificationMessage = verificationMessageOrNil else { return }
                 self.verificationRequestCreator.handle(message: verificationMessage)
@@ -84,11 +87,11 @@ class OnMessageController {
     }
 }
 
-fileprivate extension OnMessageController {
-    func verifyStartSignal(for userID: UserID) -> VerifyStartSignal? {
-        return self.verifyStartSignalStore.getFirst(matching: userID)
-    }
-}
+//fileprivate extension OnMessageController {
+//    func verifyStartSignal(for userID: UserID) -> VerifyStartSignal? {
+//        return self.verifyStartSignalStore.getFirst(matching: userID)
+//    }
+//}
 
 extension Message {
     

@@ -9,7 +9,6 @@ extension Droplet {
         print("Environment: \(env.description)")
         
         let discordConfigFileName = "discord"
-        let secretsConfigFilename = "secrets"
         let botTokenKey = "discordBotToken"
         
         guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
