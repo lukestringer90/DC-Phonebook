@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
     name: "DC-Bot",
     dependencies: [
+		.package(url: "https://github.com/vapor-community/postgresql-provider.git", .upToNextMajor(from: "2.1.0")),
 		.package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "2.1.0")),
 		.package(url: "https://github.com/Azoy/Sword.git", .upToNextMajor(from: "0.9.0"))
     ],
@@ -14,7 +15,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "DC-Phonebook",
-            dependencies: ["Sword", "Vapor"],
+            dependencies: ["Sword", "Vapor", "PostgreSQLProvider"],
 			path: "Sources",
 			exclude: [
 				"Config",
