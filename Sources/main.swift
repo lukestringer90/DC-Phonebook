@@ -1,6 +1,5 @@
 import Foundation
 import Sword
-import DC_BotCore
 
 let discordConfigFileName = "discord"
 let botTokenKey = "discordBotToken"
