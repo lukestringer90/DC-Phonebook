@@ -83,24 +83,6 @@
         }
       },
       {
-        "package": "Fluent",
-        "repositoryURL": "https://github.com/vapor/fluent.git",
-        "state": {
-          "branch": null,
-          "revision": "84b0d96a61b66168f2a61ec788581e0a2ab6f9c3",
-          "version": "2.5.1"
-        }
-      },
-      {
-        "package": "FluentProvider",
-        "repositoryURL": "https://github.com/vapor/fluent-provider.git",
-        "state": {
-          "branch": null,
-          "revision": "425d973f7cad7bfa987409b9e4a8659c14c6f0e0",
-          "version": "1.3.0"
-        }
-      },
-      {
         "package": "JSON",
         "repositoryURL": "https://github.com/vapor/json.git",
         "state": {
@@ -161,15 +143,6 @@
           "branch": null,
           "revision": "7708d654e26c76e245becdbcc507a427d4808c1f",
           "version": "1.1.0"
-        }
-      },
-      {
-        "package": "SQLite",
-        "repositoryURL": "https://github.com/vapor/sqlite.git",
-        "state": {
-          "branch": null,
-          "revision": "9aceb6a0d7b1698a557647493bd78b030dad468b",
-          "version": "2.3.1"
         }
       },
       {
