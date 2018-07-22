@@ -4,12 +4,11 @@ import Sword
 let discordConfigFileName = "discord"
 let botTokenKey = "discordBotToken"
 
-//guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
-//    fatalError("No \(botTokenKey) env var")
-//}
+guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
+    fatalError("No \(botTokenKey) env var")
+}
 
-let token = "NDUwMzk0OTMwMDYyNDI2MTEy.DhwRgg.pAeg8PIXalSM9b3OB_PGfjbFX2k"
-
+// TODO: Either read from proper env config JSON or change
 let config = DiscordConfig(channelIDs: DiscordConfig.ChannelIDs(phoneBookRequests: UInt64(450397327295905803), phoneBookDirectory: UInt64(450397213319757854), logs: UInt64(450397168046440449)), roleIDs: DiscordConfig.RoleIDs(verified: 455104920673058817), verifyStartMessage: DiscordConfig.VerifyStartMessage(command: "!verify", secondsBeforeDeletion: 7.0))
 
 var options = SwordOptions()
