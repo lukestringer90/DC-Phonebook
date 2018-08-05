@@ -10,10 +10,20 @@ guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
     fatalError("No \(botTokenKey) env var")
 }
 
-let dbURL = ProcessInfo.processInfo.environment["DATABASE_URL"] ?? "localhost"
-print("Using DB URL: \(dbURL)")
-
-let driver = try! PostgreSQLDriver.Driver(masterHostname: dbURL, readReplicaHostnames: [], user: "", password: "", database: "luke")
+let driver: PostgreSQLDriver.Driver = {
+	if let dbURL = ProcessInfo.processInfo.environment["DATABASE_URL"] {
+		do {
+			print("Using env var for DB URL: \(dbURL)")
+			return try PostgreSQLDriver.Driver(url: dbURL)
+		}
+		catch {
+			print(error)
+			abort()
+		}
+	}
+	print("Using localhost for DB URL")
+	return try! PostgreSQLDriver.Driver(masterHostname: "localhost", readReplicaHostnames: [], user: "", password: "", database: "luke")
+}()
 let database = Database(driver)
 try! database.prepare([VerifyStartSignal.self, VerificationRequest.self])
 
