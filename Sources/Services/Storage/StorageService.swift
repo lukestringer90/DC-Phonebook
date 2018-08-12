@@ -72,15 +72,18 @@ protocol Storable: Model, Preparation {
 extension StorageService {
 	
 	func add(_ entity: Entity) {
+		print_flush("Add to store: \(String(describing: type(of: entity)))")
 		try! entity.save()
 		callDidUpdate()
 	}
 	
 	func add(_ entities: [Entity]) {
+		print_flush("Add multiple to store: \(String(describing: type(of: entities)))")
 		entities.forEach { add($0) }
 	}
 	
 	func remove(_ entity: Entity) {
+		print_flush("Remove from store: \(String(describing: type(of: entity)))")
 		try! entity.delete()
 		callDidUpdate()
 	}
@@ -92,11 +95,12 @@ extension StorageService {
 	}
 	
 	func all() -> [Entity] {
+		print_flush("Get all from store: \(String(describing: Entity.self))")
 		do {
 			return try Entity.all()
 		}
 		catch {
-			print(error)
+			print_flush(error)
 			abort()
 		}
 	}

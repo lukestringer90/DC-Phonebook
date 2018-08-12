@@ -16,7 +16,7 @@ struct VerifyStartMessageController {
         guard startMessage.content == config.verifyStartMessage.command else { return }
             startMessage.reply(with: "Check for a DM from me.") { replyMessageOrNil, error in
                 guard let replyMessage = replyMessageOrNil else {
-                    print("Could not reply to start message. Error: \(String(describing: error))")
+                    print_flush("Could not reply to start message. Error: \(String(describing: error))")
                     return
                 }
                 let seconds = self.config.verifyStartMessage.secondsBeforeDeletion

@@ -67,7 +67,7 @@ class VerificationRequestWizard {
                 forumName = nil
                 state = .requestForum
             })
-        case .complete, .approved, .denied: print("Cannot accept input for this state: \(state).")
+        case .complete, .approved, .denied: print_flush("Cannot accept input for this state: \(state).")
         }
     }
 }
@@ -89,7 +89,7 @@ fileprivate extension VerificationRequestWizard {
         return forumURL.hasPrefix(Constants.DragonCave.forumBaseURL)
     }
     
-    func parseConfirmation(_ message: String, confirm: () -> (), retry: ()-> (), invalid: (_ message: String) -> () = { print("Invalid message: \($0)") }) {
+    func parseConfirmation(_ message: String, confirm: () -> (), retry: ()-> (), invalid: (_ message: String) -> () = { print_flush("Invalid message: \($0)") }) {
         switch message.lowercased() {
         case "y", "yes": confirm()
         case "n", "no": retry()

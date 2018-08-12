@@ -17,7 +17,7 @@ extension DiscordLogger: LoggingService {
     func log(_ event: Event) {
         self.discord.sendMessage(event.message(), to: channelID) { errorOrNil in
             if let error = errorOrNil {
-                print("Error sending log: \(error)")
+                print_flush("Error sending log: \(error)")
             }
         }
     }
