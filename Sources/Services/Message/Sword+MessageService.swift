@@ -82,8 +82,13 @@ fileprivate extension Sword {
             var remaining = reactions
 			print_flush("Removing first reaction")
             remaining.removeFirst()
-			print_flush("Recursing")
-            self.recursivelyAddReaction(remaining, to: messageId, in: channelId, then: completion)
+			
+			print_flush("Waiting")
+			DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+				print_flush("Recursing")
+				self.recursivelyAddReaction(remaining, to: messageId, in: channelId, then: completion)
+			}
+
         }
     }
 }
