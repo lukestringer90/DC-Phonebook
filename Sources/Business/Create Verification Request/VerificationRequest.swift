@@ -53,7 +53,6 @@ class VerificationRequest: Storable {
 	static func prepare(_ database: Database) throws {
 		try database.create(self) { signals in
 			signals.id()
-			// TODO: Make sure these work for UInt64
 			signals.int("userID")
 			signals.string("scrollURL")
 			signals.string("forumPage")
@@ -100,7 +99,7 @@ extension VerificationRequest {
 			let at = string.index(of: "@"),
 			let closingBracket = string.index(of: ">")
 			else {
-				fatalError("Cannot get user ID from message content")
+				fataError_flush("Cannot get user ID from message content")
 		}
 		
 		let start = string.index(after: at)
@@ -109,7 +108,7 @@ extension VerificationRequest {
 		let userIDString = string[start...end]
 		
 		guard let userIDNumber = UInt64(userIDString) else {
-			fatalError("Cannot parse message string into double for user ID ")
+			fataError_flush("Cannot parse message string into double for user ID ")
 		}
 		
 		return UserID(userIDNumber)

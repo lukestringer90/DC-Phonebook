@@ -48,7 +48,7 @@ class VerificationRequestCreator {
         
         roleService.getRolesIDs(forUser: authorID, in: message.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
-                print("Cannot get roles for user. Error: \(String(describing: error))")
+                print_flush("Cannot get roles for user. Error: \(String(describing: error))")
                 return
             }
             
@@ -65,7 +65,7 @@ class VerificationRequestCreator {
                     self.userIDWizardMap[authorID] = wizard
                     self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
 						if let error = error {
-							print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+							print_flush("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
 						}
                     }
                 }
@@ -77,7 +77,7 @@ class VerificationRequestCreator {
                 wizard.inputMessage(message.content)
                 self.messageService.sendMessage(wizard.state.userMessage, to: authorDMID) { error in
 					if let error = error {
-						print("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
+						print_flush("Failed to send wizard state \(wizard.state) to \(authorID). Error: \(String(describing: error))")
 					}
                 }
             }
@@ -94,10 +94,10 @@ extension VerificationRequestCreator: VerificationRequestWizardDelegate {
             }
             
             guard error == nil else {
-                print("Failed to post verification request message. Error: \(String(describing: error))")
+                print_flush("Failed to post verification request message. Error: \(String(describing: error))")
                 return
             }
-            
+			
             self.verificationRequestStore.add(request)
             self.verifyStartSignalStore.remove(matching: request.userID)
             

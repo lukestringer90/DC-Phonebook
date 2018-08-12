@@ -32,7 +32,7 @@ class OnMessageController {
         }
         
         guard let user = message.author else {
-            print("Message has no author")
+            print_flush("Message has no author")
             return
         }
         
@@ -63,11 +63,11 @@ class OnMessageController {
                 was called from.
                 */
                 guard let member = message.member else {
-					print("Cannot get member for message sent by author \(userID)")
+					print_flush("Cannot get member for message sent by author \(userID)")
 					return
 				}
 				guard let guildID = member.guild?.id.rawValue else {
-					print("Cannot get guild ID for message sent by author \(userID)")
+					print_flush("Cannot get guild ID for message sent by author \(userID)")
 					return
 				}
 				
@@ -102,14 +102,14 @@ extension Message {
     
     func produceVerificationMessage(in guildID: GuildID, completion: @escaping (_ message: VerificationMessage?) -> ())  {
         guard let author = author else {
-            print("Message has no author")
+            print_flush("Message has no author")
             completion(nil)
             return
         }
         
         author.getDM { dmOrNil, requestError in
             guard let dm = dmOrNil else {
-                print("Cannot get DM for author: \(author.id)")
+                print_flush("Cannot get DM for author: \(author.id)")
                 completion(nil)
                 return
             }

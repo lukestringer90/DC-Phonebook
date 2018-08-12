@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "CPostgreSQL",
+        "repositoryURL": "https://github.com/vapor-community/cpostgresql.git",
+        "state": {
+          "branch": null,
+          "revision": "33f0f94f023ab61ccd0ba2f076dd6a448be853e3",
+          "version": "2.1.0"
+        }
+      },
+      {
         "package": "Crypto",
         "repositoryURL": "https://github.com/vapor/crypto.git",
         "state": {
@@ -125,6 +134,33 @@
           "branch": null,
           "revision": "607aa595081da496f0f04a5c0cffd976e81d2e4e",
           "version": "2.1.5"
+        }
+      },
+      {
+        "package": "PostgreSQL",
+        "repositoryURL": "https://github.com/vapor-community/postgresql.git",
+        "state": {
+          "branch": null,
+          "revision": "1d23662a0b1b6b4689319607bb8d22daa57e5fca",
+          "version": "2.1.2"
+        }
+      },
+      {
+        "package": "PostgreSQLDriver",
+        "repositoryURL": "https://github.com/vapor-community/postgresql-driver.git",
+        "state": {
+          "branch": null,
+          "revision": "a8a410d4291094b0adc4ebb49adbc9d9310567ef",
+          "version": "2.1.0"
+        }
+      },
+      {
+        "package": "PostgreSQLProvider",
+        "repositoryURL": "https://github.com/vapor-community/postgresql-provider.git",
+        "state": {
+          "branch": null,
+          "revision": "28eda35d9887172d3f3e5769db603339d3e88f05",
+          "version": "2.1.0"
         }
       },
       {

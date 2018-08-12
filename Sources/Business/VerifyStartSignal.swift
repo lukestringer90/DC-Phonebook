@@ -46,7 +46,6 @@ class VerifyStartSignal: Storable {
 	static func prepare(_ database: Database) throws {
 		try database.create(self) { signals in
 			signals.id()
-			// TODO: Make sure these work for UInt64
 			signals.int("userID")
 			signals.int("guildID")
 		}

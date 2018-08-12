@@ -53,7 +53,7 @@ fileprivate extension VerificationRequestProcessor {
         guard success else { return }
         
         guard let request = verificationRequestStore.getFirst(matching: userID) else {
-            print("No request in store")
+            print_flush("No request in store")
             return
         }
         self.verificationRequestStore.remove(request)
@@ -62,14 +62,14 @@ fileprivate extension VerificationRequestProcessor {
     func approve(userID: UserID, reaction: ReactionToVerificationRequest, then completion: @escaping ProcessorCompletion) {
         roleService.getRolesIDs(forUser: userID, in: reaction.guildID) { roleIDsOrNil, error in
             guard let roleIDs = roleIDsOrNil else {
-                print("\(String(describing: error))")
+                print_flush("\(String(describing: error))")
                 completion(userID, false)
                 return
             }
             
             let roleIDToAssign = self.config.roleIDs.verified
             guard !roleIDs.contains(roleIDToAssign) else {
-                print("User already verified")
+                print_flush("User already verified")
                 completion(userID, false)
                 return
             }
@@ -79,7 +79,7 @@ fileprivate extension VerificationRequestProcessor {
             
             self.roleService.modify(user: userID, in: reaction.guildID, toHaveRoles: newRoleIDs) { modifyError in
                 guard modifyError == nil else {
-                    print("Failed giving roles \(newRoleIDs). Error: \(String(describing: modifyError))")
+                    print_flush("Failed giving roles \(newRoleIDs). Error: \(String(describing: modifyError))")
                     completion(userID, false)
                     return
                 }
@@ -88,21 +88,21 @@ fileprivate extension VerificationRequestProcessor {
                 
                 self.messageService.sendMessage(reaction.messageContent, to: self.config.channelIDs.phoneBookDirectory) { sendError in
                     guard sendError == nil else {
-                        print("\(String(describing: sendError))")
+                        print_flush("\(String(describing: sendError))")
                         completion(userID, false)
                         return
                     }
                     
                     self.messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
                         guard deleteError == nil else {
-                            print("\(String(describing: deleteError))")
+                            print_flush("\(String(describing: deleteError))")
                             completion(userID, false)
                             return
                         }
                         
                         self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
                             guard let recepientID = recepientIDOrNil else {
-                                print("Cannot get direct message ID or \(userID)")
+                                print_flush("Cannot get direct message ID or \(userID)")
                                 completion(userID, false)
                                 return
                             }
@@ -111,7 +111,7 @@ fileprivate extension VerificationRequestProcessor {
                             
                             self.messageService.sendMessage(approvedState.userMessage, to: recepientID) { sendError in
                                 guard sendError == nil else {
-                                    print("\(String(describing: sendError))")
+                                    print_flush("\(String(describing: sendError))")
                                     completion(userID, false)
                                     return
                                 }
@@ -131,7 +131,7 @@ fileprivate extension VerificationRequestProcessor {
         
         messageService.deleteMessage(reaction.messageID, from: reaction.channelID) { deleteError in
             guard deleteError == nil else {
-                print("\(String(describing: deleteError))")
+                print_flush("\(String(describing: deleteError))")
                 completion(userID, false)
                 return
             }
@@ -139,7 +139,7 @@ fileprivate extension VerificationRequestProcessor {
             
             self.messageService.getDirectMessageID(forUser: userID) { recepientIDOrNil in
                 guard let recepientID = recepientIDOrNil else {
-                    print("Cannot get direct message ID or \(userID)")
+                    print_flush("Cannot get direct message ID or \(userID)")
                     completion(userID, false)
                     return
                 }
@@ -148,7 +148,7 @@ fileprivate extension VerificationRequestProcessor {
                 
                 self.messageService.sendMessage(deniedState.userMessage, to: recepientID) { sendError in
                     guard sendError == nil else {
-                        print("\(String(describing: sendError))")
+                        print_flush("\(String(describing: sendError))")
                         completion(userID, false)
                         return
                     }

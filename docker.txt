@@ -1,0 +1,23 @@
+docker image build --tag $DOCKERID/dc-bot:1.0 .
+
+ docker container run \
+ -it \
+ --name dc-bot \
+ --mount type=bind,source="$(pwd)",target=/app \
+ -w /app \
+ $DOCKERID/dc-bot:1.0
+
+docker container ls --all
+
+docker attach dc-bot
+
+
+
+apt-get update
+apt-get install postgresql postgresql-contrib
+
+
+apt-get install -y libsodium-dev
+apt-get update && apt-get install libpq-dev
+
+swift run

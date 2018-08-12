@@ -22,6 +22,8 @@ class OnReactionAddController {
     }
     
     func handle(data: Any) {
+		print_flush("Handling reaction")
+		
         typealias Reaction = (Channel, Snowflake, Snowflake, Emoji)
         
         guard
@@ -31,7 +33,8 @@ class OnReactionAddController {
         
         discord.getUser(userID) { userOrNil, error in
             guard let user = userOrNil else {
-				print("Failed to get user \(userID). Error: \(String(describing: error))")
+				print_flush("Failed to get user \(userID). Error: \(String(describing: error))")
+				fflush(stdout)
                 return
             }
             
@@ -39,12 +42,14 @@ class OnReactionAddController {
             
             self.discord.getMessage(messageID, from: channel.id) { messageOrNil, error in
                 guard let message = messageOrNil else {
-                    print("Failed to get user \(messageID). Error: \(String(describing: error))")
+                    print_flush("Failed to get user \(messageID). Error: \(String(describing: error))")
+					fflush(stdout)
                     return
                 }
                 
                 guard let guildID = message.member?.guild?.id.rawValue else {
-                    print("Cannot get Guild ID")
+                    print_flush("Cannot get Guild ID")
+					fflush(stdout)
                     return
                 }
 

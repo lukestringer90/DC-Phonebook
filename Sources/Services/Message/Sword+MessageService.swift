@@ -10,7 +10,16 @@ import Sword
 
 extension Sword: MessageService {
     func sendMessage(_ content: String, to recepientID: RecepientID, withEmojiReactions reactions: [EmojiReaction], then completion: ServiceCompletion?) {
+		
+		print_flush("Sending to \(recepientID)")
+		
+		
         send(content, to: Snowflake(rawValue: recepientID)) { message, error in
+
+			if let theError = error {
+				print_flush("Sending errored: \(theError)")
+			}
+			
             guard let message = message else {
                 completion?(error)
                 return
@@ -50,20 +59,36 @@ extension Sword: MessageService {
 
 fileprivate extension Sword {
     func recursivelyAddReaction(_ reactions: [EmojiReaction], to messageId: MessageID, in channelId: RecepientID, then completion: ServiceCompletion?) {
+		
         guard let nextReaction = reactions.first else {
             completion?(nil)
             return
         }
+		
+		print_flush("Adding reaction \(nextReaction.rawValue)")
         
         addReaction(nextReaction.rawValue, to: Snowflake(messageId), in: Snowflake(channelId)) { error in
+			print_flush("In reaction completion")
+			if let theError = error {
+				print_flush("Reaction errored: \(theError)")
+			}
+			
             guard error == nil else {
+				print_flush("Finished adding reactions")
                 completion?(nil)
                 return
             }
-            
+			
             var remaining = reactions
+			print_flush("Removing first reaction")
             remaining.removeFirst()
-            self.recursivelyAddReaction(remaining, to: messageId, in: channelId, then: completion)
+			
+			print_flush("Waiting")
+			DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+				print_flush("Recursing")
+				self.recursivelyAddReaction(remaining, to: messageId, in: channelId, then: completion)
+			}
+
         }
     }
 }
