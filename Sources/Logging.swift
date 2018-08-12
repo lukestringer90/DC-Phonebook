@@ -11,3 +11,8 @@ func print_flush(_ items: Any...) {
 	print(items)
 	fflush(stdout)
 }
+
+func fataError_flush(_ items: Any...) -> Never {
+	print_flush(items)
+	fatalError()
+}

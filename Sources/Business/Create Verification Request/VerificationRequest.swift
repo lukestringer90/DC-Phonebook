@@ -99,8 +99,7 @@ extension VerificationRequest {
 			let at = string.index(of: "@"),
 			let closingBracket = string.index(of: ">")
 			else {
-				print_flush("Cannot get user ID from message content")
-				abort()
+				fataError_flush("Cannot get user ID from message content")
 		}
 		
 		let start = string.index(after: at)
@@ -109,8 +108,7 @@ extension VerificationRequest {
 		let userIDString = string[start...end]
 		
 		guard let userIDNumber = UInt64(userIDString) else {
-			print_flush("Cannot parse message string into double for user ID ")
-			abort()
+			fataError_flush("Cannot parse message string into double for user ID ")
 		}
 		
 		return UserID(userIDNumber)

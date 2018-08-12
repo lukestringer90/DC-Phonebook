@@ -7,8 +7,7 @@ let discordConfigFileName = "discord"
 let botTokenKey = "discordBotToken"
 
 guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
-	print_flush("No \(botTokenKey) env var")
-    abort()
+	fataError_flush("No \(botTokenKey) env var")
 }
 
 let driver: PostgreSQLDriver.Driver = {
@@ -19,8 +18,7 @@ let driver: PostgreSQLDriver.Driver = {
 			return try PostgreSQLDriver.Driver(url: dbURL)
 		}
 		catch {
-			print_flush(error)
-			abort()
+			fataError_flush(error)
 		}
 	}
 	print_flush("Using localhost for DB URL")

@@ -100,8 +100,7 @@ extension StorageService {
 			return try Entity.all()
 		}
 		catch {
-			print_flush(error)
-			abort()
+			fataError_flush(error)
 		}
 	}
 	
