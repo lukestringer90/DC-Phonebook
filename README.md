@@ -1,3 +1,3 @@
 # DC-Phonebook
 
-A description of this package.
+Discord bot for the Dragon Cave server to verify users.
