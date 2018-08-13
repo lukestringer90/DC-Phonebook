@@ -28,8 +28,10 @@ let driver: PostgreSQLDriver.Driver = {
 let database = Database(driver)
 try! database.prepare([VerifyStartSignal.self, VerificationRequest.self])
 
-// TODO: Either read from proper env config JSON or change
-let config = DiscordConfig(channelIDs: DiscordConfig.ChannelIDs(phoneBookRequests: UInt64(450397327295905803), phoneBookDirectory: UInt64(450397213319757854), logs: UInt64(450397168046440449)), roleIDs: DiscordConfig.RoleIDs(verified: 455104920673058817), verifyStartMessage: DiscordConfig.VerifyStartMessage(command: "!verify", secondsBeforeDeletion: 7.0))
+let bytes = try! DataFile(workDir: "").read(at: "Config/Discord/beta.json")
+let data = Data(bytes: bytes)
+
+let config = try! JSONDecoder().decode(DiscordConfig.self, from: data)
 
 var options = SwordOptions()
 options.willCacheAllMembers = true
