@@ -3,11 +3,15 @@ import Sword
 import PostgreSQLDriver
 import FluentProvider
 
-let discordConfigFileName = "discord"
+let flavourKey = "flavour"
 let botTokenKey = "discordBotToken"
 
 guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
 	fataError_flush("No \(botTokenKey) env var")
+}
+
+guard let flavour = ProcessInfo.processInfo.environment[flavourKey] else {
+	fataError_flush("No \(flavourKey) env var")
 }
 
 let driver: PostgreSQLDriver.Driver = {
@@ -28,7 +32,7 @@ let driver: PostgreSQLDriver.Driver = {
 let database = Database(driver)
 try! database.prepare([VerifyStartSignal.self, VerificationRequest.self])
 
-let bytes = try! DataFile(workDir: "").read(at: "Config/Discord/beta.json")
+let bytes = try! DataFile(workDir: "").read(at: "Config/Discord/\(flavour).json")
 let data = Data(bytes: bytes)
 
 let config = try! JSONDecoder().decode(DiscordConfig.self, from: data)
