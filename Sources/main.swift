@@ -3,47 +3,73 @@ import Sword
 import PostgreSQLDriver
 import FluentProvider
 
-let discordConfigFileName = "discord"
+// MARK: - Get env vars
+
+let flavourKey = "flavour"
 let botTokenKey = "discordBotToken"
 
 guard let token = ProcessInfo.processInfo.environment[botTokenKey] else {
 	fataError_flush("No \(botTokenKey) env var")
 }
 
-let driver: PostgreSQLDriver.Driver = {
-	if let dbURL = ProcessInfo.processInfo.environment["DATABASE_URL"] {
-		do {
-			print_flush("Using env var for DB URL: \(dbURL)")
-			fflush(stdout)
-			return try PostgreSQLDriver.Driver(url: dbURL)
+guard let flavour = ProcessInfo.processInfo.environment[flavourKey] else {
+	fataError_flush("No \(flavourKey) env var")
+}
+
+print_flush("Running as \(flavour) flavour")
+
+// MARK: - Database setup
+
+func setupDatabase(){
+	let driver: PostgreSQLDriver.Driver = {
+		if let dbURL = ProcessInfo.processInfo.environment["DATABASE_URL"] {
+			do {
+				print_flush("Using env var for DB URL: \(dbURL)")
+				fflush(stdout)
+				return try PostgreSQLDriver.Driver(url: dbURL)
+			}
+			catch {
+				fataError_flush(error)
+			}
 		}
-		catch {
-			fataError_flush(error)
-		}
-	}
-	print_flush("Using localhost for DB URL")
-	fflush(stdout)
-	return try! PostgreSQLDriver.Driver(masterHostname: "localhost", readReplicaHostnames: [], user: "", password: "", database: "luke")
-}()
-let database = Database(driver)
-try! database.prepare([VerifyStartSignal.self, VerificationRequest.self])
+		print_flush("Using localhost for DB URL")
+		fflush(stdout)
+		return try! PostgreSQLDriver.Driver(masterHostname: "localhost", readReplicaHostnames: [], user: "", password: "", database: "luke")
+	}()
+	let database = Database(driver)
+	try! database.prepare([VerifyStartSignal.self, VerificationRequest.self])
+}
 
-// TODO: Either read from proper env config JSON or change
-let config = DiscordConfig(channelIDs: DiscordConfig.ChannelIDs(phoneBookRequests: UInt64(450397327295905803), phoneBookDirectory: UInt64(450397213319757854), logs: UInt64(450397168046440449)), roleIDs: DiscordConfig.RoleIDs(verified: 455104920673058817), verifyStartMessage: DiscordConfig.VerifyStartMessage(command: "!verify", secondsBeforeDeletion: 7.0))
+// MARK: - Discor Bot setup
 
-var options = SwordOptions()
-options.willCacheAllMembers = true
-let bot = Sword(token: token, with: options)
+func setupBot(token: String, config: DiscordConfig) {
+	var options = SwordOptions()
+	options.willCacheAllMembers = true
+	let bot = Sword(token: token, with: options)
+	
+	let onMessageController = OnMessageController(discord: bot, config: config)
+	let onReactionAddController = OnReactionAddController(discord: bot, config: config)
+	
+	bot.editStatus(to: "online", playing: "In Development")
+	bot.on(.messageCreate, do: onMessageController.handle)
+	bot.on(.reactionAdd, do: onReactionAddController.handle)
+	bot.connect()
+}
 
-let onMessageController = OnMessageController(discord: bot, config: config)
-let onReactionAddController = OnReactionAddController(discord: bot, config: config)
+// MARK: - Load flavour config
 
-bot.editStatus(to: "online", playing: "In Development")
-bot.on(.messageCreate, do: onMessageController.handle)
-bot.on(.reactionAdd, do: onReactionAddController.handle)
-bot.connect()
+func loadConfig(from flavour: String) -> DiscordConfig {
+	
+	let bytes = try! DataFile(workDir: "").read(at: "Config/Discord/\(flavour).json")
+	let data = Data(bytes: bytes)
+	return try! JSONDecoder().decode(DiscordConfig.self, from: data)
+}
 
-let runLoop = RunLoop.current
-let distantFuture = Date.distantFuture
+// MARK: - Run setup processes
 
-runLoop.run(mode: .defaultRunLoopMode, before: distantFuture)
+setupDatabase()
+let config = loadConfig(from: flavour)
+setupBot(token: token, config: config)
+
+RunLoop.current.run(mode: .defaultRunLoopMode, before: Date.distantFuture)
+
